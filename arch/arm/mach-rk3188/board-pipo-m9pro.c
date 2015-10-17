@@ -1645,6 +1645,8 @@ static void __init rk30_reserve(void)
 
 // ds1006h 10'
 static struct cpufreq_frequency_table dvfs_arm_table_volt_level2[] = {
+        {.frequency = 70 * 1000,       .index = 750 * 1000},
+        {.frequency = 170 * 1000,       .index = 800 * 1000},
         {.frequency = 312 * 1000,       .index = 900 * 1000},
         {.frequency = 504 * 1000,       .index = 925 * 1000},
         {.frequency = 816 * 1000,       .index = 1000 * 1000},
