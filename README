@@ -9,9 +9,7 @@ export ARCH=arm
 export SUBARCH=arm
 export CROSS_COMPILE=/media/90gb/linaro_toolchains_2014/arm-cortex_a9-linux-gnueabihf-linaro_4.9.3-2014.12/bin/arm-eabi-
 _________________________________________________________________________________________________________________________
-Then in source directory make your defconfig, defconfigs for M9 Pro are:
-Pipo_M9Max_defconfig
-Pipo_M9_Pro_DDR_OC_defconfig
+Then in source directory make your defconfig, defconfig for M9 Pro is Pipo_M9_Pro_DDR_OC_defconfig.
 First is default config, second contains overclocked to 1600 Mhz RAM with 10-10-10 timings and custom bootlogo.
 Then make kernel with make -j <your number of CPU cores+1> kernel.img
 Then you can flash your kernel
