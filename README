@@ -1,6 +1,9 @@
 Kernel source optimized for Pipo M9 Pro.
 This repository contains source of 3.0.36+ kernel for some RK3188 devices. This source modified
-and optimized especially for Pipo M9 Pro by me.
+and optimized especially for Pipo M9 Pro by str90.
+
+Kernel source customized for Haier Haierpad 1043.
+
 How to build: 
 For better performance use Linaro 4.9 toolchain with this example environment variables set
 _________________________________________________________________________________________________________________________
