@@ -35,4 +35,6 @@ board-$(CONFIG_PIPO_M8HD)  += board-pipo-m8hd.o
 board-$(CONFIG_PIPO_M9MAX)  += board-pipo-m9max.o
 board-$(CONFIG_PIPO_U8)  += board-pipo-u8.o
 board-$(CONFIG_PIPO_M6MAX)  += board-pipo-m6max.o
+board-$(CONFIG_HAIER_1043)  += board-haier-1043.o
+
 

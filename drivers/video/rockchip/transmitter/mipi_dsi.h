@@ -49,9 +49,9 @@ drivers/video/rockchip/transmitter/mipi_dsi.h
 #define dcs_get_pixel_format  		0x0c
 #define dcs_get_power_mode  		0x0a
 #define dcs_get_red_channel 		0x06
-#define dcs_get_scanline 	 		0x45
+#define dcs_get_scanline 	 	0x45
 #define dcs_get_signal_mode  		0x0e
-#define dcs_nop				 		0x00
+#define dcs_nop				0x00
 #define dcs_read_DDB_continue  		0xa8
 #define dcs_read_DDB_start  		0xa1
 #define dcs_read_memory_continue  	0x3e
@@ -66,11 +66,11 @@ drivers/video/rockchip/transmitter/mipi_dsi.h
 #define dcs_set_pixel_format  		0x3a
 #define dcs_set_scroll_area  		0x33
 #define dcs_set_scroll_start  		0x37
-#define dcs_set_tear_off 	 		0x34
-#define dcs_set_tear_on 	 		0x35
+#define dcs_set_tear_off 	 	0x34
+#define dcs_set_tear_on 	 	0x35
 #define dcs_set_tear_scanline  		0x44
-#define dcs_soft_reset 		 		0x01
-#define dcs_write_LUT 		 		0x2d
+#define dcs_soft_reset 		 	0x01
+#define dcs_write_LUT 		 	0x2d
 #define dcs_write_memory_continue  	0x3c
 #define dcs_write_memory_start 		0x2c
 

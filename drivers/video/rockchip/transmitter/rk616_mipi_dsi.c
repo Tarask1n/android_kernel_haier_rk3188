@@ -88,7 +88,11 @@
     
 #endif
 
-
+// Original defines cause conflict
+#define dcs_set_display_off__  		0x28
+#define dcs_set_display_on__  		0x29
+#define dcs_enter_sleep_mode__ 		0x10
+#define dcs_exit_sleep_mode__  		0x11
 
 /*
 *			 Driver Version Note
@@ -847,11 +851,11 @@ static int rk_mipi_dsi_init(void *array, u32 n)
 		rk_mipi_dsi_enable_hs_clk(1);
 #ifndef CONFIG_MIPI_DSI_FT		
 		dcs[0] = HSDT;
-		dcs[1] = dcs_exit_sleep_mode; 
+		dcs[1] = dcs_exit_sleep_mode__; 
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(1);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_set_display_on;
+		dcs[1] = dcs_set_display_on__;
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(10);
 #endif	
@@ -1439,11 +1443,11 @@ void  rk616_mipi_dsi_suspend(void)
 	if(!g_screen->standby) {
 		rk_mipi_dsi_enable_video_mode(0);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_set_display_off; 
+		dcs[1] = dcs_set_display_off__; 
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(1);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_enter_sleep_mode; 
+		dcs[1] = dcs_enter_sleep_mode__; 
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(1);
 	} else {
@@ -1479,11 +1483,11 @@ void rk616_mipi_dsi_resume(void)
 	if(!g_screen->standby) {
 		rk_mipi_dsi_enable_hs_clk(1);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_exit_sleep_mode;
+		dcs[1] = dcs_exit_sleep_mode__;
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(1);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_set_display_on;
+		dcs[1] = dcs_set_display_on__;
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		//msleep(10);
 	} else {
@@ -1782,11 +1786,11 @@ static void rk616_mipi_dsi_shutdown(struct platform_device *pdev)
 	if(!g_screen->standby) {
 		rk_mipi_dsi_enable_video_mode(0);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_set_display_off; 
+		dcs[1] = dcs_set_display_off__; 
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(1);
 		dcs[0] = HSDT;
-		dcs[1] = dcs_enter_sleep_mode; 
+		dcs[1] = dcs_enter_sleep_mode__; 
 		rk_mipi_dsi_send_dcs_packet(dcs, 2);
 		msleep(1);
 	} else {

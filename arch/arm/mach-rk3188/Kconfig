@@ -40,6 +40,9 @@ config PIPO_M9MAX
 config PIPO_U8
         bool "Pipo U8"
 
+config HAIER_1043
+        bool "Haier 1043"
+
 config MACH_RK3188_U30GT2
 	bool "Cube U30GT2"
 
