@@ -220,7 +220,10 @@ config LCD_B080XAN02_MIPI
 	bool "7.9 inch Mipi dsi lcd 768x1024 (AOU B080XAN02)"	
 
 config LCD_RK3168_FAC
-        bool "RK3168 for factoryTool"     
+        bool "RK3168 for factoryTool"  
+
+config LCD_HAIER_1043
+	bool "Haierpad 1043 mipi dsi LCD"   
 endchoice
 
 
