@@ -56,7 +56,7 @@
 //#include <linux/l3g4200d.h>
 //#include "../../../drivers/misc/gps/rk_gps/rk_gps.h"
 //#include <linux/gps.h>
-#include "../mach-rk30/board-rk3168-ds1006h-camera.c"
+#include "board-haier-1043-camera.c"
 #include <plat/key.h>
 #include "../../../drivers/video/rockchip/transmitter/mipi_dsi.h"
 
@@ -71,21 +71,6 @@
 #if defined(CONFIG_MFD_RK616)
 #include <linux/mfd/rk616.h>
 #endif
-
-#if defined(CONFIG_TOUCHSCREEN_GT9XX)
-#include "../../../drivers/input/touchscreen/gt9xx/gt9xx.h"
-
-static int tp_probe_flag = 0;
-extern int get_probe_state(void)
-{
-       return tp_probe_flag;
-}
-
-extern int set_probe_state(int state)
-{
-       tp_probe_flag = state;
-}
-#endif //goodix GT9xx
 
 /* Android Parameter */ 
 static int ap_mdm = 0; 
@@ -179,28 +164,6 @@ static struct platform_device rk29_device_vibrator = {
 };
 #endif
 
-#if defined(CONFIG_GYRO_L3G20D)
-#include <linux/l3g4200d.h>
-#define L3G20D_INT_PIN	RK30_PIN0_PB4
-
-static int l3g20d_init_platform_hw(void)
-{	
-		return 0;
-}
-
-static struct sensor_platform_data l3g20d_info = {
-		.type = SENSOR_TYPE_GYROSCOPE,
-		.irq_enable = 1,
-		.poll_delay_ms = 0, //30,
-		.orientation = {1, 0, 0, 0, -1, 0, 0, 0, -1},
-		.init_platform_hw = l3g20d_init_platform_hw,
-		.x_min = 40,//x_min,y_min,z_min = (0-100) according to hardware
-		.y_min = 40,
-		.z_min = 20,
-};
-
-#endif
-
 #if defined(CONFIG_MFD_RK616)
 #define RK616_RST_PIN 			RK30_PIN3_PB2
 #define RK616_PWREN_PIN			RK30_PIN0_PA3
@@ -262,9 +225,9 @@ static struct rk616_platform_data rk616_pdata = {
 	.lcd1_func = INPUT,             //port lcd1 as input
 	.lvds_ch_nr = 1,		//the number of used lvds channel  
 	.hdmi_irq = RK30_PIN2_PD6,
-	.spk_ctl_gpio = RK30_PIN2_PD7,//RK30_PIN2_PD7,
-	.hp_ctl_gpio = RK30_PIN0_PC1,//INVALID_GPIO,
-	.mic_sel_gpio = RK30_PIN3_PD4,
+	.spk_ctl_gpio = RK30_PIN3_PD4, //RK30_PIN2_PD7, //RK30_PIN2_PD7,
+	.hp_ctl_gpio = INVALID_GPIO, //RK30_PIN0_PC1,
+	.mic_sel_gpio = INVALID_GPIO, //RK30_PIN3_PD4,
 };
 #endif
 
@@ -420,6 +383,33 @@ static struct sensor_platform_data akm8963_info =
         }
 };
 
+/*MMA8452 gsensor*/
+#if defined (CONFIG_GS_MMA8452)
+#define MMA8452_INT_PIN   RK30_PIN0_PB7
+
+static int mma8452_init_platform_hw(void)
+{
+	return 0;
+}
+
+static struct sensor_platform_data mma8452_info = {
+	.type = SENSOR_TYPE_ACCEL,
+	.irq_enable = 1,
+	.poll_delay_ms = 30,
+        .init_platform_hw = mma8452_init_platform_hw,
+        .orientation = {-1, 0, 0, 0, 0, -1, 0, 1, 0},
+};
+#endif
+
+#ifdef CONFIG_LS_CM3232
+static struct sensor_platform_data cm3232_info = {
+	.type = SENSOR_TYPE_LIGHT,
+	.irq_enable = 0,
+	.poll_delay_ms = 500,
+};
+
+#endif
+
 #ifdef CONFIG_MFD_RICOH619
 #include <linux/mfd/ricoh619.h>
 #define PMU_POWER_SLEEP 	RK30_PIN0_PA1
@@ -487,11 +477,11 @@ static  struct pmu_info  ricoh619_ldo_info[] = {
 		.min_uv        = 1800000,
 		.max_uv        = 1800000,
 	},
-/*	{
+	{
 		.name          = "ricoh_ldo6",   //vdd12
-		.min_uv        = 1200000,
-		.max_uv        = 1200000,
-	},*/
+		.min_uv        = 0,
+		.max_uv        = 0,
+	},
 	{
 		.name          = "ricoh_ldo7",   //vccio_18
 		.min_uv        = 1200000,
@@ -557,45 +547,6 @@ struct platform_device rk29_device_mt6229 = {
 
 #include "../../../drivers/video/rockchip/transmitter/mipi_dsi.h"
 #include "../../../drivers/video/rockchip/transmitter/rk616_mipi_dsi.h"
-
-struct ssd2828_t ssd2828_platdata = {
-	.id = 0x2828,
-	.reset = {
-		.reset_pin = RK30_PIN0_PA7,   //RESET PIN (LCD_RST)
-		.effect_value = GPIO_LOW,
-	},
-	.vddio = {                       //POWER ON (LCD_EN)
-		.enable_pin = INVALID_GPIO,
-		.effect_value = GPIO_LOW,
-		.name = "ssd2828_vddio",
-		.voltage = 0,
-	},
-	.vdd_mipi = {                     //MVDD
-		.enable_pin = INVALID_GPIO,
-		.name = "act_ldo2",
-		.voltage = 1200000,
-	},	
-	.shut = {                     //SHUT PIN (LCD_CS)
-		.enable_pin = RK30_PIN0_PB0, 
-		.effect_value = GPIO_LOW,
-		.name = "ssd2828_shut",
-	},
-	.spi = {                          
-		.cs = RK30_PIN0_PD7,
-		.sck = RK30_PIN0_PD6,
-		.miso = RK30_PIN0_PD4,
-		.mosi = RK30_PIN0_PD5,
-	},
-};
-
-//board
-static struct platform_device device_ssd2828 = {
-        .name   = "ssd2828",
-        .id     = -1,
-        .dev = {
-                .platform_data = &ssd2828_platdata,
-        },
-};
 
 #define LCD_CS_PIN         INVALID_GPIO//RK30_PIN0_PB0
 #define LCD_CS_VALUE       GPIO_HIGH
@@ -713,6 +664,36 @@ struct rk29fb_info lcdc1_screen_info = {
 
 };
 
+struct resource ram_res[] = {
+        {
+                .start = 0, //0xef000000, //0x8ff00000,
+                .end = 0, //0xef007fff, //0x8fffffff,
+                .flags = IORESOURCE_MEM,
+        },
+};
+
+struct platform_device ram_console_dev = {
+        .name = "ram_console",
+        .id = -1,
+        .num_resources = ARRAY_SIZE(ram_res),
+        .resource = ram_res,
+};
+
+
+/*#include <linux/ramoops.h>
+
+static struct ramoops_platform_data ramoops_data = {
+        .mem_size               = 0x8000,
+        .mem_address            = 0xef000000,
+};
+
+static struct platform_device ramoops_dev = {
+        .name = "ramoops",
+        .dev = {
+                .platform_data = &ramoops_data,
+        },
+};*/
+
 static struct resource resource_fb[] = {
 	[0] = {
 		.name  = "fb0 buf",
@@ -808,50 +789,6 @@ static struct platform_device device_lcdc1 = {
 		.platform_data = &lcdc1_screen_info,
 	},
 };
-
-#define RK_HDMI_RST_PIN		INVALID_GPIO //RK30_PIN3_PB2
-#define RK_HDMI_POWER_EN_PIN	INVALID_GPIO
-
-
-static int rk_hdmi_power_init(void)
-{
-	int ret_en = 0;
-	int ret_rst = 0;
-
-	printk("func %s, line %d: \n", __FUNCTION__, __LINE__);
-
-	if(RK_HDMI_POWER_EN_PIN != INVALID_GPIO) {
-		ret_en = gpio_request(RK_HDMI_POWER_EN_PIN, "hdmi_enable");
-		if (ret_en !=0) {
-			printk("func %s, line %d: request gpio hdmi power en pin fail\n", __FUNCTION__, __LINE__);
-			gpio_free(RK_HDMI_POWER_EN_PIN);
-		}
-		gpio_direction_output(RK_HDMI_POWER_EN_PIN, GPIO_LOW);
-		gpio_set_value(RK_HDMI_POWER_EN_PIN, GPIO_LOW);
-	}
-
-	msleep(100);
-
-	if(RK_HDMI_RST_PIN != INVALID_GPIO) {
-		ret_rst = gpio_request(RK_HDMI_RST_PIN, "hdmi_reset");
-		if (ret_rst != 0) {
-			printk("func %s, line %d: request gpio fail\n", __FUNCTION__, __LINE__);
-			gpio_free(RK_HDMI_RST_PIN);
-		}
-		gpio_direction_output(RK_HDMI_RST_PIN, GPIO_LOW);
-		gpio_set_value(RK_HDMI_RST_PIN, GPIO_LOW);
-		msleep(100);
-		gpio_set_value(RK_HDMI_RST_PIN, GPIO_HIGH);
-		msleep(50);
-	}
-
-	return ret_rst + ret_en;
-}
-
-static struct rk_hdmi_platform_data rk_hdmi_pdata = {
-	.io_init = rk_hdmi_power_init,
-};
-
 
 #define ION_RESERVE_SIZE        (120 * SZ_1M)
 #define ION_RESERVE_SIZE_120M   (120 * SZ_1M)
@@ -1123,43 +1060,6 @@ struct rk29_sdmmc_platform_data default_sdmmc2_data = {
  * the end of setting for SDMMC devices
 **************************************************************************************************/
 
-//cw015 battery
-/*
-   note the follow array must set depend on the battery that you use
-   you must send the battery to cellwise-semi the contact information:
-   name: chen gan; tel:13416876079; E-mail: ben.chen@cellwise-semi.com
- */
-static u8 config_info[SIZE_BATINFO] = {
-
-//2- ?e��-_DS1006_JSH101_MB7600_ProfileV3LT_20 130705.txt
-    0x15, 0x17, 0x5B, 0x58, 0x57,
-	0x55, 0x4F, 0x4C, 0x4A, 0x49,
-	0x47, 0x45, 0x41, 0x37, 0x2E,
-	0x26, 0x1D, 0x19, 0x15, 0x17,
-	0x20, 0x3C, 0x48, 0x43, 0x35,
-	0x5A, 0x0A, 0xE1, 0x1C, 0x39,
-    0x44, 0x6D, 0x78, 0x6B, 0x66,
-	0x6B, 0x42, 0x1B, 0x52, 0x4D,
-	0x0F, 0x22, 0x52, 0x87, 0x8F,
-	0x91, 0x94, 0x52, 0x82, 0x8C,
-	0x92, 0x96, 0x2E, 0x82, 0xA5,
-	0xCB, 0x2F, 0x7D, 0x72, 0xA5,
-    0xB5, 0xC1, 0x27, 0x0A
-
-};
-
-static struct cw_bat_platform_data cw_bat_platdata = {
-	.dc_det_pin	= RK30_PIN0_PB2,
-	.bat_low_pin    = RK30_PIN0_PB1,
- 	.chg_ok_pin	= RK30_PIN0_PA6,//INVALID_GPIO??
-
-	.dc_det_level	= GPIO_LOW,
-	.bat_low_level  = GPIO_LOW,   
-	.chg_ok_level	= GPIO_HIGH,
-
-	.cw_bat_config_info     = config_info,
-};
-
 // bluetooth rfkill device, its driver in net/rfkill/rfkill-rk.c
 static struct rfkill_rk_platform_data rfkill_rk_platdata = {
     .type               = RFKILL_TYPE_BLUETOOTH,
@@ -1221,6 +1121,10 @@ static struct platform_device device_rfkill_rk = {
 };
 
 static struct platform_device *devices[] __initdata = {
+#if defined(CONFIG_ANDROID_RAM_CONSOLE)
+	&ram_console_dev,
+#endif
+	//&ramoops_dev,
 	&device_ion,
 	&rk29sdk_wifi_device,
 	&device_rfkill_rk,
@@ -1253,12 +1157,12 @@ static int rk_platform_add_display_devices(void)
 // i2c
 static struct i2c_board_info __initdata i2c0_info[] = {
 
-	/*{
+	{
 		.type	       = CT36X_NAME,
 		.addr          = 0x01,
 		.flags         = 0,
 		.platform_data = &ct36x_info,
-	},*/
+	},
 	{
 		.type          = "ak8963",
 		.addr          = 0x0d,
@@ -1266,6 +1170,16 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 		.irq           = RK30_PIN3_PD7,	
 		.platform_data = &akm8963_info,
 	},
+
+#if defined (CONFIG_GS_MMA8452)
+	{
+		.type	        = "gs_mma8452",
+		.addr	        = 0x1d,
+		.flags	        = 0,
+		.irq	        = MMA8452_INT_PIN,
+		.platform_data = &mma8452_info,
+	},
+#endif
 };
 
 int __sramdata g_pmic_type =  0;
@@ -1351,31 +1265,14 @@ void  rk30_pwm_resume_voltage_set(void)
 
 
 static struct i2c_board_info __initdata i2c2_info[] = {
-
-	/*{
-		.type		= GTP_I2C_NAME ,
-        	.addr		= GTP_I2C_ADDR ,
-        	.flags		= 0,
-        	.irq		= RK30_PIN1_PB7,
-        	//.platform_data = &ts_pdata,
-	},*/
-
-/*
+#if defined (CONFIG_LS_CM3232)
 	{
-		.type		= "cat66121_hdmi",
-		.addr		= 0x4c,
-		.flags		= 0,
-		.irq		= RK30_PIN2_PD6,
-		.platform_data 	= &rk_hdmi_pdata,
+		.type          = "cm3232",
+		.addr          = 0x10,
+		.flags         = 0,
+		.platform_data = &cm3232_info,
 	},
-
-
-        {    
-                .type           = "us5151",
-                .addr           = 0x10,
-                .flags          = 0, 
-        },   */
-
+#endif
 };
 
 
@@ -1461,7 +1358,7 @@ static void __init machine_rk30_board_init(void)
 {
 	int ret;	
 
-	avs_init(); //NAND io remap - possibly comment out? d33
+	//avs_init(); //NAND io remap - possibly comment out? d33
 	gpio_request(POWER_ON_PIN, "poweronpin");
 	gpio_direction_output(POWER_ON_PIN, GPIO_HIGH);
 	
@@ -1473,9 +1370,9 @@ static void __init machine_rk30_board_init(void)
 	spi_register_board_info(board_spi_devices, ARRAY_SIZE(board_spi_devices));
 	platform_add_devices(devices, ARRAY_SIZE(devices));
 	rk_platform_add_display_devices();
-	//board_usb_detect_init(RK30_PIN0_PA7);
+	board_usb_detect_init(RK30_PIN0_PA7);
 
-	rk29sdk_wifi_bt_gpio_control_init();
+	//rk29sdk_wifi_bt_gpio_control_init();
 }
 
 #define HD_SCREEN_SIZE 1920UL*1200UL*4*3
@@ -1520,6 +1417,10 @@ static void __init rk30_reserve(void)
 #endif
 #endif
 
+#if defined(CONFIG_ANDROID_RAM_CONSOLE)
+	ram_res[0].start = board_mem_reserve_add("ram console buf", 0x8000);
+	ram_res[0].end = ram_res[0].start + 0x8000 - 1;
+#endif
 
 #ifdef CONFIG_VIDEO_RK29
 	rk30_camera_request_reserve_mem();
