@@ -581,6 +581,7 @@ static int rk29_sdmmc_wait_unbusy(struct rk29_sdmmc *host)
     int sec_flag = 0;
     
     if(RK29_SDMMC_EMMC_ID == host->host_dev_id){
+#if defined(CONFIG_SDMMC2_RK29) || defined(CONFIG_EMMC_RK)
         if(host->cmd->opcode == 38) //erase op
                 if(this_card){
                         if((host->cmd->arg & (0x1 << 31)) == 1) //secure erase
@@ -593,6 +594,7 @@ static int rk29_sdmmc_wait_unbusy(struct rk29_sdmmc *host)
                                         time_out = (this_card->ext_csd.hc_erase_timeout) * 300000;
                         }
                 }
+#endif
         if(time_out < 2500000)
                 time_out = 2500000;//ensure minimal value
     }
