@@ -69,7 +69,8 @@ static int __init last_log_init(void)
 	char *log_buf, *new_log_buf;
 	struct proc_dir_entry *entry;
 
-	log_buf = (char *)__get_free_pages(GFP_KERNEL, LOG_BUF_PAGE_ORDER);
+	//log_buf = (char *)__get_free_pages(GFP_KERNEL, LOG_BUF_PAGE_ORDER);
+	log_buf = (char *)0xd6100000;
 	if (!log_buf) {
 		pr_err("failed to __get_free_pages(%d)\n", LOG_BUF_PAGE_ORDER);
 		return 0;
@@ -96,9 +97,9 @@ static int __init last_log_init(void)
 	entry->proc_fops = &last_log_file_ops;
 	entry->size = LOG_BUF_LEN;
 
-#ifndef CONFIG_ANDROID_RAM_CONSOLE
+//#ifndef CONFIG_ANDROID_RAM_CONSOLE
 	proc_symlink("last_kmsg", NULL, "last_log");
-#endif
+//#endif
 
 	return 0;
 }
