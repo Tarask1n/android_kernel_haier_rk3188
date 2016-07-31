@@ -124,7 +124,7 @@ int rk29_bl_val_scalor_conic(struct rk29_bl_info *rk29_bl_info,int brightness)
 	//rk29_bl_min_brightness_check(rk29_bl_info);
 	//rk29_bl_max_brightness_check(rk29_bl_info);
 
-#if defined(CONFIG_PIPO_M7PRO)	|| defined(CONFIG_PIPO_M8HD)
+#if defined(CONFIG_PIPO_M7PRO)	|| defined(CONFIG_PIPO_M8HD) || defined(CONFIG_HAIER_1043)
 	 brightness = rk29_bl_info->min_brightness+brightness * (rk29_bl_info->max_brightness - rk29_bl_info->min_brightness)/255;
 #else //for all not M7Pro
 	

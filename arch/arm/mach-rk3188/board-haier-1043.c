@@ -118,10 +118,23 @@ extern int get_harware_version()
         return 2;
 }
 
+#if defined(CONFIG_TOUCHSCREEN_VTL_TS)
+
+#include "../../../drivers/input/touchscreen/vtl_ts/vtl_ts.h"
+
+struct ts_config_info	vtl_ts_config_info = {
+	.screen_max_x	 = 1920,
+	.screen_max_y	 = 1200,
+	.irq_gpio_number = RK30_PIN1_PB7,
+	.rst_gpio_number = RK30_PIN0_PB6,
+};
+
+#endif
+
 #if defined(CONFIG_TOUCHSCREEN_CT36X) || defined(CONFIG_CT36X_TS)
 
 static struct ct36x_platform_data ct36x_info = {
-	.model   = 363,
+	.model   = 360,
 	.x_max   = 1920,
 	.y_max   = 1200,
 	.rst_io = {
@@ -241,7 +254,7 @@ static struct spi_board_info board_spi_devices[] = {
 #define PWM_MODE	  PWM3
 
 
-#define PWM_EFFECT_VALUE  1 //possibly 0?
+#define PWM_EFFECT_VALUE  0
 
 #define BL_EN_PIN         RK30_PIN0_PA2
 #define BL_EN_VALUE       GPIO_HIGH
@@ -332,8 +345,8 @@ static int rk29_backlight_pwm_resume(void)
 
 static struct rk29_bl_info rk29_bl_info = {
 
-        .min_brightness = 20,
-        .max_brightness = 150,
+        .min_brightness = 58,
+        .max_brightness = 160,
 	.pre_div = 40 * 1000,  // pwm output clk: 40k;
         .brightness_mode =BRIGHTNESS_MODE_CONIC,
 	.pwm_id = PWM_ID,
@@ -816,7 +829,7 @@ static struct platform_device device_ion = {
  * SDMMC devices,  include the module of SD,MMC,and sdio.noted by xbw at 2012-03-05
 **************************************************************************************************/
 
-#include "board-rk3188-ds1006h-sdmmc-config.c"
+#include "board-haier-1043-sdmmc-config.c"
 #include "../plat-rk/rk-sdmmc-ops.c"
 #include "../plat-rk/rk-sdmmc-wifi.c"
 
@@ -1156,13 +1169,24 @@ static int rk_platform_add_display_devices(void)
 
 // i2c
 static struct i2c_board_info __initdata i2c0_info[] = {
-
+#if defined(CONFIG_TOUCHSCREEN_CT36X) || defined(CONFIG_CT36X_TS)
 	{
 		.type	       = CT36X_NAME,
 		.addr          = 0x01,
 		.flags         = 0,
 		.platform_data = &ct36x_info,
 	},
+#endif
+
+#if defined(CONFIG_TOUCHSCREEN_VTL_TS)
+	{
+		.type	       = "vtl_ts",
+		.addr          = 0x01,
+		.flags         = 0,
+		.platform_data = &vtl_ts_config_info,
+	},
+#endif
+
 	{
 		.type          = "ak8963",
 		.addr          = 0x0d,
@@ -1370,9 +1394,9 @@ static void __init machine_rk30_board_init(void)
 	spi_register_board_info(board_spi_devices, ARRAY_SIZE(board_spi_devices));
 	platform_add_devices(devices, ARRAY_SIZE(devices));
 	rk_platform_add_display_devices();
-	board_usb_detect_init(RK30_PIN0_PA7);
+	//board_usb_detect_init(RK30_PIN0_PA7);
 
-	//rk29sdk_wifi_bt_gpio_control_init();
+	rk29sdk_wifi_bt_gpio_control_init();
 }
 
 #define HD_SCREEN_SIZE 1920UL*1200UL*4*3
