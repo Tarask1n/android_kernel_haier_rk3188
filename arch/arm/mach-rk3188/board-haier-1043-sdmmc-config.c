@@ -11,12 +11,6 @@
  * E-mail: xbw@rock-chips.com
  *
  ******************************************************************************************/
-    
-/*
-** If you select the macro of CONFIG_RK29_SDIO_IRQ_FROM_GPIO, You must define the following values.
-** Otherwise, there is no need to define the following values¡£
-*/
-//#define RK29SDK_WIFI_SDIO_CARD_INT         RK30_PIN3_PD2
 
 
 /*
@@ -32,10 +26,10 @@ int rk31sdk_get_sdmmc0_pin_io_voltage(void)
     /**************************************************************************************
     **  Please tell me how much voltage of your SDMMC0-pin in your project. 
     **
-    **     ÀýÈç: ÓÐµÄÏîÄ¿£¬ËüµÄSDMMC0ËùÔÚµÄRKÖ÷¿ØµÄIO×é£¬ÏëÓÃ1.8V, ¶ø¿¨±¾ÉíÓÃ3.3V, 
-    **  ¶øÖÐ¼äÍ¨¹ý¸öµçÆ½×ª»».ÄÇÃ´£¬Äú´ËÊ±£¬Ó¦¸ÃÉèÖÃÏÂÃæµÄvoltageÖµÎª 1.8V(¼´1800mv)
+    **     ï¿½ï¿½ï¿½ï¿½: ï¿½Ðµï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½SDMMC0ï¿½ï¿½ï¿½Úµï¿½RKï¿½ï¿½ï¿½Øµï¿½IOï¿½é£¬ï¿½ï¿½ï¿½ï¿½1.8V, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½3.3V, 
+    **  ï¿½ï¿½ï¿½Ð¼ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½Æ½×ªï¿½ï¿½.ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½voltageÖµÎª 1.8V(ï¿½ï¿½1800mv)
     ***************************************************************************************/
-    voltage = 3300;  //default the voltage 3300mv. 
+    voltage = 3300;  //default the voltage 3300mv.
 
     return voltage;
 }
@@ -64,10 +58,13 @@ int rk31sdk_get_sdmmc0_pin_io_voltage(void)
 	|| defined(CONFIG_RTL8189ES) || defined(CONFIG_RTL8723BS)
 
     #define RK30SDK_WIFI_GPIO_POWER_N               RK30_PIN3_PD0                 
-    #define RK30SDK_WIFI_GPIO_POWER_ENABLE_VALUE    GPIO_HIGH                   
+    #define RK30SDK_WIFI_GPIO_POWER_ENABLE_VALUE    GPIO_HIGH
 
-    #define RK30SDK_WIFI_GPIO_RESET_N               RK30_PIN2_PA7
+    #define RK30SDK_WIFI_GPIO_RESET_N               INVALID_GPIO //RK30_PIN2_PA7
     #define RK30SDK_WIFI_GPIO_RESET_ENABLE_VALUE    GPIO_HIGH 
+
+    #define RK30SDK_WIFI_GPIO_WIFI_INT_B               RK30_PIN3_PD2
+    #define RK30SDK_WIFI_GPIO_WIFI_INT_B_ENABLE_VALUE  GPIO_LOW
 
 #elif defined(CONFIG_MT5931_MT6622) || defined(CONFIG_MT5931) || defined(CONFIG_MTK_MT5931)
 
@@ -127,7 +124,7 @@ int rk31sdk_get_sdio_wifi_voltage(void)
     **  Please tell me how much wifi-module uses voltage in your project.  
     ******************************************************************************/
 #if defined(CONFIG_BCM4329) || defined(CONFIG_BCM4319) || defined(CONFIG_RKWIFI)
-    voltage = 1800 ; //power 1800mV
+    voltage = 3300; //default: 1800 ; //power 1800mV
     
 #elif defined(CONFIG_MT5931_MT6622)||defined(CONFIG_MT5931) || defined(CONFIG_MTK_MT5931)
     voltage = 2800 ; //power 1800V

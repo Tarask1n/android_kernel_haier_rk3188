@@ -692,21 +692,6 @@ struct platform_device ram_console_dev = {
         .resource = ram_res,
 };
 
-
-/*#include <linux/ramoops.h>
-
-static struct ramoops_platform_data ramoops_data = {
-        .mem_size               = 0x8000,
-        .mem_address            = 0xef000000,
-};
-
-static struct platform_device ramoops_dev = {
-        .name = "ramoops",
-        .dev = {
-                .platform_data = &ramoops_data,
-        },
-};*/
-
 static struct resource resource_fb[] = {
 	[0] = {
 		.name  = "fb0 buf",
@@ -859,7 +844,7 @@ static int rk29_sdmmc0_cfg_gpio(void)
         rk30_mux_api_set(RK29SDK_SD_CARD_DETECT_PIN_NAME, RK29SDK_SD_CARD_DETECT_IOMUX_FGPIO);
         #endif
     #else
-        #if SDMMC_USE_NEW_IOMUX_API       
+        #if SDMMC_USE_NEW_IOMUX_API
         iomux_set(MMC0_DETN);
         #else
         rk30_mux_api_set(RK29SDK_SD_CARD_DETECT_PIN_NAME, RK29SDK_SD_CARD_DETECT_IOMUX_FMUX);
@@ -1087,7 +1072,7 @@ static struct rfkill_rk_platform_data rfkill_rk_platdata = {
     },
 
     .reset_gpio         = { // BT_RST
-        .io             = INVALID_GPIO,//RK30_PIN3_PD1, 
+        .io             = RK30_PIN3_PD1,
         .enable         = GPIO_LOW,
         .iomux          = {
             .name       = "bt_reset",
