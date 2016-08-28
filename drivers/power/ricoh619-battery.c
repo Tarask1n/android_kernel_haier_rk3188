@@ -236,7 +236,7 @@ int g_fg_on_mode;
 extern int dwc_vbus_status(void);
 /*This is for full state*/
 static int BatteryTableFlagDef=0;
-static int BatteryTypeDef=0;
+static int BatteryTypeDef=2;
 static int Battery_Type(void)
 {
 	return BatteryTypeDef;

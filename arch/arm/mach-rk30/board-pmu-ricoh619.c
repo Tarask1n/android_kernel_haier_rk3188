@@ -458,7 +458,7 @@ static struct ricoh619_battery_platform_data ricoh619_power_battery = {
 	.monitor_time = 60,
 	
 		/* some parameter is depend of battery type */
-	.type[0] = {
+	.type[0] = { // default
 		.ch_vfchg 	= 0xFF,	/* VFCHG	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
 		.ch_vrchg 	= 0xFF,	/* VRCHG	= 0 - 4 (3.85v, 3.90v, 3.95v, 4.00v, 4.10v) */
 		.ch_vbatovset 	= 0xFF,	/* VBATOVSET	= 0 or 1 (0 : 4.38v(up)/3.95v(down) 1: 4.53v(up)/4.10v(down)) */
@@ -478,28 +478,48 @@ static struct ricoh619_battery_platform_data ricoh619_power_battery = {
 		.jt_ichg_h 	= 0x0D,	/* VFCHG Low  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
 		.jt_ichg_l 	= 0x09,	/* ICHG Low   	= 0 - 0x1D (100mA - 3000mA) */	//},
 	},
-	/*
-	.type[1] = {
-		.ch_vfchg = 0x0,
-		.ch_vrchg = 0x0,
-		.ch_vbatovset = 0x0,
-		.ch_ichg = 0x0,
-		.ch_ilim_adp = 0x0,
-		.ch_ilim_usb = 0x0,
-		.ch_icchg = 0x00,
-		.fg_target_vsys = 3300,//3000,
-		.fg_target_ibat = 1000,//1000,
-		.fg_poff_vbat = 0,
-		.jt_en = 0,
-		.jt_hw_sw = 1,
-		.jt_temp_h = 40,
-		.jt_temp_l = 10,
-		.jt_vfchg_h = 0x0,
-		.jt_vfchg_l = 0,
-		.jt_ichg_h = 0x01,
-		.jt_ichg_l = 0x01,
+
+	.type[1] = { // stock
+		.ch_vfchg 	= 0xFF,	/* VFCHG	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
+		.ch_vrchg 	= 0x04,	/* VRCHG	= 0 - 4 (3.85v, 3.90v, 3.95v, 4.00v, 4.10v) */
+		.ch_vbatovset 	= 0xFF,	/* VBATOVSET	= 0 or 1 (0 : 4.38v(up)/3.95v(down) 1: 4.53v(up)/4.10v(down)) */
+		.ch_ichg 	= 0x13,	/* ICHG		= 0 - 0x1D (100mA - 3000mA) */
+		.ch_ilim_adp 	= 0x13,	/* ILIM_ADP	= 0 - 0x1D (100mA - 3000mA) */
+		.ch_ilim_usb 	= 0x13,	/* ILIM_USB	= 0 - 0x1D (100mA - 3000mA) */
+		.ch_icchg 	= 0x03,	/* ICCHG	= 0 - 3 (50mA 100mA 150mA 200mA) */
+		.fg_target_vsys = 3420,	/* This value is the target one to DSOC=0% */
+		.fg_target_ibat = 2000, /* This value is the target one to DSOC=0% */
+		.fg_poff_vbat = 0, /* setting value of 0 per Vbat */
+		.jt_en 		= 1,	/* JEITA Enable	  = 0 or 1 (1:enable, 0:disable) */
+		.jt_hw_sw 	= 0,	/* JEITA HW or SW = 0 or 1 (1:HardWare, 0:SoftWare) */
+		.jt_temp_h 	= 50,	/* degree C */
+		.jt_temp_l 	= 12,	/* degree C */
+		.jt_vfchg_h 	= 0x03,	/* VFCHG High  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
+		.jt_vfchg_l 	= 0,	/* VFCHG Low  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
+		.jt_ichg_h 	= 0x0D,	/* ICHG High   	= 0 - 0x1D (100mA - 3000mA) */
+		.jt_ichg_l 	= 0x09,	/* ICHG Low   	= 0 - 0x1D (100mA - 3000mA) */	//},
 	},
-	*/
+
+	.type[2] = { // custom
+		.ch_vfchg 	= 0xFF,	/* VFCHG	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
+		.ch_vrchg 	= 0x04,	/* VRCHG	= 0 - 4 (3.85v, 3.90v, 3.95v, 4.00v, 4.10v) */
+		.ch_vbatovset 	= 0xFF,	/* VBATOVSET	= 0 or 1 (0 : 4.38v(up)/3.95v(down) 1: 4.53v(up)/4.10v(down)) */
+		.ch_ichg 	= 0x13,	/* ICHG		= 0 - 0x1D (100mA - 3000mA) */
+		.ch_ilim_adp 	= 0x13,	/* ILIM_ADP	= 0 - 0x1D (100mA - 3000mA) */
+		.ch_ilim_usb 	= 0x13,	/* ILIM_USB	= 0 - 0x1D (100mA - 3000mA) */
+		.ch_icchg 	= 0x03,	/* ICCHG	= 0 - 3 (50mA 100mA 150mA 200mA) */
+		.fg_target_vsys = 3420,	/* This value is the target one to DSOC=0% */
+		.fg_target_ibat = 2000, /* This value is the target one to DSOC=0% */
+		.fg_poff_vbat = 0, /* setting value of 0 per Vbat */
+		.jt_en 		= 1,	/* JEITA Enable	  = 0 or 1 (1:enable, 0:disable) */
+		.jt_hw_sw 	= 1,	/* JEITA HW or SW = 0 or 1 (1:HardWare, 0:SoftWare) */
+		.jt_temp_h 	= 50,	/* degree C */
+		.jt_temp_l 	= 12,	/* degree C */
+		.jt_vfchg_h 	= 0x03,	/* VFCHG High  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
+		.jt_vfchg_l 	= 0,	/* VFCHG Low  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
+		.jt_ichg_h 	= 0x0D,	/* ICHG High   	= 0 - 0x1D (100mA - 3000mA) */
+		.jt_ichg_l 	= 0x09,	/* ICHG Low   	= 0 - 0x1D (100mA - 3000mA) */	//},
+	},
 
 /*  JEITA Parameter
 *
