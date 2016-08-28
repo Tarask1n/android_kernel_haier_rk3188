@@ -180,6 +180,7 @@ static struct platform_device rk29_device_vibrator = {
 #if defined(CONFIG_MFD_RK616)
 #define RK616_RST_PIN 			RK30_PIN3_PB2
 #define RK616_PWREN_PIN			RK30_PIN0_PA3
+#define RK616_HP_DETECT			RK30_PIN3_PD4
 #define RK616_SCL_RATE			(100*1000)   //i2c scl rate
 static int rk616_power_on_init(void)
 {
@@ -211,12 +212,25 @@ static int rk616_power_on_init(void)
 			msleep(2);
 			gpio_direction_output(RK616_RST_PIN, GPIO_LOW);
 			msleep(10);
-	    		gpio_set_value(RK616_RST_PIN, GPIO_HIGH);
+	    	gpio_set_value(RK616_RST_PIN, GPIO_HIGH);
+		}
+	}
+
+	if(RK616_HP_DETECT != INVALID_GPIO)
+	{
+		ret = gpio_request(RK616_HP_DETECT, "rk616 hp det");
+		if(ret)
+		{
+			printk(KERN_ERR ">>>>>> RK616_HP_DETECT gpio_request err \n");
+		}
+		else
+		{
+			gpio_pull_updown(RK616_HP_DETECT, PullDisable);
+			gpio_direction_input(RK616_HP_DETECT);
 		}
 	}
 
 	return 0;
-	
 }
 
 
@@ -230,17 +244,17 @@ static int rk616_power_deinit(void)
 	return 0;
 }
 
-static struct rk616_platform_data rk616_pdata = {
+static struct rk616_platform_data rk616_pdata = { // Even with stock kernel
 	.power_init = rk616_power_on_init,
 	.power_deinit = rk616_power_deinit,
 	.scl_rate   = RK616_SCL_RATE,
 	.lcd0_func = INPUT,             //port lcd0 as input
 	.lcd1_func = INPUT,             //port lcd1 as input
-	.lvds_ch_nr = 1,		//the number of used lvds channel  
+	.lvds_ch_nr = 0,		//the number of used lvds channel
 	.hdmi_irq = RK30_PIN2_PD6,
-	.spk_ctl_gpio = RK30_PIN3_PD4, //RK30_PIN2_PD7, //RK30_PIN2_PD7,
-	.hp_ctl_gpio = INVALID_GPIO, //RK30_PIN0_PC1,
-	.mic_sel_gpio = INVALID_GPIO, //RK30_PIN3_PD4,
+	.spk_ctl_gpio = RK30_PIN2_PD7, //RK30_PIN3_PD4, //RK30_PIN2_PD7,
+	.hp_ctl_gpio = RK30_PIN2_PD7, //INVALID_GPIO, //RK30_PIN0_PC1,
+	//.mic_sel_gpio = INVALID_GPIO, //RK30_PIN3_PD4,
 };
 #endif
 
@@ -365,27 +379,27 @@ static struct platform_device rk29_device_backlight = {
 	}
 };
 
-static struct sensor_platform_data akm8963_info =
+static struct sensor_platform_data akm8963_info = // Even with stock kernel
 {
         .type = SENSOR_TYPE_COMPASS,
         .irq_enable = 1,
-        //.poll_delay_ms = 0,
-        .layout = 8,	//M7Pro has  5
+        .poll_delay_ms = 30,
+        .layout = 0,
         .m_layout =
         {
             {
-                {0, 1, 0},
-		{-1, 0, 0},
-		{0, 0, 1},
-	    },   
+                {0, -1, 0},
+				{-1, 0, 0},
+				{0, 0, -1},
+            },
             {
                 {1, 0, 0},
                 {0, 1, 0},
                 {0, 0, 1},
             },
             {//gsensor
-                {0, -1, 0},
                 {1, 0, 0},
+                {0, -1, 0},
                 {0, 0, -1},
             },
             {
@@ -405,12 +419,46 @@ static int mma8452_init_platform_hw(void)
 	return 0;
 }
 
-static struct sensor_platform_data mma8452_info = {
+static struct sensor_platform_data mma8452_info = { // Even with stock kernel
 	.type = SENSOR_TYPE_ACCEL,
 	.irq_enable = 1,
 	.poll_delay_ms = 30,
         .init_platform_hw = mma8452_init_platform_hw,
-        .orientation = {-1, 0, 0, 0, 0, -1, 0, 1, 0},
+        .orientation = {1, 0, 0, 0, -1, 0, 0, 0, -1},
+};
+#endif
+
+#if defined(CONFIG_GYRO_EWTSA)
+#define EWTSA_INT_PIN		RK30_PIN0_PB4
+#define EWTSA_STANDBY_PIN	RK30_PIN1_PB3
+
+static int ewtsa_init_platform_hw(void)
+{
+	int ret;
+
+	if(EWTSA_STANDBY_PIN != INVALID_GPIO)
+	{
+		ret = gpio_request(EWTSA_STANDBY_PIN, "ewtsa_sleep");
+		if (ret)
+		{
+			printk(KERN_ERR "request ewtsa sleep pin fail!\n");
+		}
+		else
+		{
+			gpio_direction_output(EWTSA_STANDBY_PIN, GPIO_LOW);
+		}
+	}
+}
+
+static struct sensor_platform_data ewtsa_gyro_info = {
+		.type = SENSOR_TYPE_GYROSCOPE,
+		.power_pin = EWTSA_STANDBY_PIN,
+		.irq_enable = 1,
+		.x_min = 20,
+		.y_min = 25,
+		.z_min = 25,
+		.orientation = {-1, 0, 0, 0, 1, 0, 0, 0, -1},
+		.init_platform_hw = ewtsa_init_platform_hw,
 };
 #endif
 
@@ -453,7 +501,7 @@ static struct pmu_info  ricoh619_dcdc_info[] = {
 		.name          = "ricoh_dc4",   //vccio
 		.min_uv        = 3300000,
 		.max_uv        = 3300000,
-		.suspend_vol   = 3300000,
+		.suspend_vol   = 3000000,
 	},
 
 	{
@@ -464,7 +512,7 @@ static struct pmu_info  ricoh619_dcdc_info[] = {
 	},
 	
 };
-static  struct pmu_info  ricoh619_ldo_info[] = {
+static  struct pmu_info  ricoh619_ldo_info[] = { // Even with stock kernel
 	{
 		.name          = "ricoh_ldo1",   //vcc30
 		.min_uv        = 3000000,
@@ -492,8 +540,8 @@ static  struct pmu_info  ricoh619_ldo_info[] = {
 	},
 	{
 		.name          = "ricoh_ldo6",   //vdd12
-		.min_uv        = 0,
-		.max_uv        = 0,
+		.min_uv        = 1200000,
+		.max_uv        = 1200000,
 	},
 	{
 		.name          = "ricoh_ldo7",   //vccio_18
@@ -641,6 +689,7 @@ static int rk_fb_io_disable(void)
 
 	return 0;
 }
+
 static int rk_fb_io_enable(void)
 {
 	if(LCD_CS_PIN !=INVALID_GPIO)
@@ -862,7 +911,7 @@ static int rk29_sdmmc0_cfg_gpio(void)
 }
 
 #define CONFIG_SDMMC0_USE_DMA
-struct rk29_sdmmc_platform_data default_sdmmc0_data = {
+struct rk29_sdmmc_platform_data default_sdmmc0_data = { // Even with stock kernel
 	.host_ocr_avail =
 	    (MMC_VDD_25_26 | MMC_VDD_26_27 | MMC_VDD_27_28 | MMC_VDD_28_29 |
 	     MMC_VDD_29_30 | MMC_VDD_30_31 | MMC_VDD_31_32 | MMC_VDD_32_33 |
@@ -952,7 +1001,7 @@ static int rk29_sdmmc1_cfg_gpio(void)
 	return 0;
 }
 
-struct rk29_sdmmc_platform_data default_sdmmc1_data = {
+struct rk29_sdmmc_platform_data default_sdmmc1_data = { // Even with stock kernel!
 	.host_ocr_avail =
 	    (MMC_VDD_25_26 | MMC_VDD_26_27 | MMC_VDD_27_28 | MMC_VDD_28_29 |
 	     MMC_VDD_29_30 | MMC_VDD_30_31 | MMC_VDD_31_32 | MMC_VDD_32_33 |
@@ -1059,7 +1108,7 @@ struct rk29_sdmmc_platform_data default_sdmmc2_data = {
 **************************************************************************************************/
 
 // bluetooth rfkill device, its driver in net/rfkill/rfkill-rk.c
-static struct rfkill_rk_platform_data rfkill_rk_platdata = {
+static struct rfkill_rk_platform_data rfkill_rk_platdata = { // Even with stock kernel!
     .type               = RFKILL_TYPE_BLUETOOTH,
 
     .poweron_gpio       = { // BT_REG_ON
@@ -1067,7 +1116,7 @@ static struct rfkill_rk_platform_data rfkill_rk_platdata = {
         .enable         = GPIO_HIGH,
         .iomux          = {
             .name       = "bt_poweron",
-            .fgpio      = GPIO3_D1,
+            .fgpio      = GPIO3_C7,
         },
     },
 
@@ -1189,6 +1238,16 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 		.platform_data = &mma8452_info,
 	},
 #endif
+
+#if defined(CONFIG_GYRO_EWTSA)
+	{
+		.type          = "ewtsa_gyro",
+		.addr          = 0x69,
+		.flags         = 0,
+		.irq           = EWTSA_INT_PIN,
+		.platform_data = &ewtsa_gyro_info,
+	}
+#endif
 };
 
 int __sramdata g_pmic_type =  0;
@@ -1276,7 +1335,7 @@ void  rk30_pwm_resume_voltage_set(void)
 static struct i2c_board_info __initdata i2c2_info[] = {
 #if defined (CONFIG_LS_CM3232)
 	{
-		.type          = "cm3232",
+		.type          = "light_cm3232",
 		.addr          = 0x10,
 		.flags         = 0,
 		.platform_data = &cm3232_info,
@@ -1365,8 +1424,6 @@ static void rk30_pm_power_off(void)
 
 static void __init machine_rk30_board_init(void)
 {
-	int ret;	
-
 	//avs_init(); //NAND io remap - possibly comment out? d33
 	gpio_request(POWER_ON_PIN, "poweronpin");
 	gpio_direction_output(POWER_ON_PIN, GPIO_HIGH);
@@ -1379,7 +1436,10 @@ static void __init machine_rk30_board_init(void)
 	spi_register_board_info(board_spi_devices, ARRAY_SIZE(board_spi_devices));
 	platform_add_devices(devices, ARRAY_SIZE(devices));
 	rk_platform_add_display_devices();
-	//board_usb_detect_init(RK30_PIN0_PA7);
+
+	// enable AP6210
+	gpio_request(RK30_PIN1_PB5, "ap6210_en");
+	gpio_direction_output(RK30_PIN1_PB5, GPIO_LOW);
 
 	rk29sdk_wifi_bt_gpio_control_init();
 }
@@ -1462,7 +1522,7 @@ static struct cpufreq_frequency_table dvfs_arm_table_volt_level2[] = {
 };
 
 // default
-static struct cpufreq_frequency_table dvfs_arm_table_volt_level1[] = {
+static struct cpufreq_frequency_table dvfs_arm_table_volt_level1[] = { // Not even with stock kernel --> no problem
 	{.frequency = 312 * 1000,       .index = 875 * 1000},
 	{.frequency = 504 * 1000,       .index = 925 * 1000},
 	{.frequency = 816 * 1000,       .index = 975 * 1000},
@@ -1476,7 +1536,7 @@ static struct cpufreq_frequency_table dvfs_arm_table_volt_level1[] = {
 
 /******************************** gpu dvfs frequency volt table **********************************/
 //ds1006h 10'
-static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {	
+static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {	// Not even with stock kernel --> no problem
        {.frequency = 133 * 1000,       .index = 975 * 1000},
 	{.frequency = 200 * 1000,       .index = 1000 * 1000},
 	{.frequency = 266 * 1000,       .index = 1025 * 1000},
@@ -1489,7 +1549,7 @@ static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {
 #define dvfs_gpu_table dvfs_gpu_table_volt_level1
 
 /******************************** ddr dvfs frequency volt table **********************************/
-static struct cpufreq_frequency_table dvfs_ddr_table_volt_level0[] = {
+static struct cpufreq_frequency_table dvfs_ddr_table_volt_level0[] = { // Not even with stock kernel --> no problem
 	{.frequency = 200 * 1000 + DDR_FREQ_SUSPEND,	.index = 950 * 1000},
 	//{.frequency = 300 * 1000 + DDR_FREQ_VIDEO,	.index = 1000 * 1000},
 	//{.frequency = 460 * 1000 + DDR_FREQ_DUALVIEW,	.index = 1150 * 1000},
