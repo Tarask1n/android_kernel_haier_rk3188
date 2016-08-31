@@ -3945,7 +3945,8 @@ static int ricoh619_batt_get_prop(struct power_supply *psy,
 		ret = 0;
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_AVG:
- 		measure_Ibatt_FG(info, &data);
+ 		ret = measure_Ibatt_FG(info, &data);
+ 		val->intval = data;
 		//RICOH_FG_DBG("average current xxxxxxxxxxxxxx %d \n", data);
 		break;
 	default:
