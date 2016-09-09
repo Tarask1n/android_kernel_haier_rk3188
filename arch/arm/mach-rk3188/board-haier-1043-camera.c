@@ -80,33 +80,23 @@ static struct rkcamera_platform_data new_camera[] = {
 
 static void rk_cif_power(int on)
 {
-    struct regulator *ldo_18,*ldo_28;
-	ldo_28 = regulator_get(NULL, "ricoh_ldo4");	// vcc28_cif
-	ldo_18 = regulator_get(NULL, "ricoh_ldo5");	// vcc18_cif
-	if (ldo_28 == NULL || IS_ERR(ldo_28) || ldo_18 == NULL || IS_ERR(ldo_18)){
+    struct regulator *reg;
+	reg = regulator_get(NULL, "ricoh_ldo5");
+
+	if (reg == NULL || IS_ERR(reg)){
         printk("get cif ldo failed!\n");
 		return;
 	    }
     if(on == 0){
-		while(regulator_is_enabled(ldo_28)>0)
-    	regulator_disable(ldo_28);
-    	regulator_put(ldo_28);
-		while(regulator_is_enabled(ldo_18)>0)
-    	regulator_disable(ldo_18);
-    	regulator_put(ldo_18);
+		while(regulator_is_enabled(reg)>0)
+    	regulator_disable(reg);
+    	regulator_put(reg);
     	mdelay(50);
         }
     else{
-    	regulator_set_voltage(ldo_28, 2800000, 2800000);
-    	regulator_enable(ldo_28);
-    	printk("%s set ldo7 vcc28_cif=%dmV end\n", __func__, regulator_get_voltage(ldo_28));
-    	regulator_put(ldo_28);
-
-    	regulator_set_voltage(ldo_18, 1800000, 1800000);
-    //	regulator_set_suspend_voltage(ldo, 1800000);
-    	regulator_enable(ldo_18);
-    //	printk("%s set ldo1 vcc18_cif=%dmV end\n", __func__, regulator_get_voltage(ldo_18));
-    	regulator_put(ldo_18);
+    	regulator_set_voltage(reg, 1800000, 1800000);
+    	regulator_enable(reg);
+    	regulator_put(reg);
 		mdelay(50);
         }
 }
