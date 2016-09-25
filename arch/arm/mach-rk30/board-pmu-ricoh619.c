@@ -496,7 +496,7 @@ static struct ricoh619_battery_platform_data ricoh619_power_battery = {
 		.jt_temp_l 	= 12,	/* degree C */
 		.jt_vfchg_h 	= 0x03,	/* VFCHG High  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
 		.jt_vfchg_l 	= 0,	/* VFCHG Low  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
-		.jt_ichg_h 	= 0x0D,	/* ICHG High   	= 0 - 0x1D (100mA - 3000mA) */
+		.jt_ichg_h 	= 0x13,	/* ICHG High   	= 0 - 0x1D (100mA - 3000mA) */
 		.jt_ichg_l 	= 0x09,	/* ICHG Low   	= 0 - 0x1D (100mA - 3000mA) */	//},
 	},
 
@@ -512,12 +512,12 @@ static struct ricoh619_battery_platform_data ricoh619_power_battery = {
 		.fg_target_ibat = 2000, /* This value is the target one to DSOC=0% */
 		.fg_poff_vbat = 0, /* setting value of 0 per Vbat */
 		.jt_en 		= 1,	/* JEITA Enable	  = 0 or 1 (1:enable, 0:disable) */
-		.jt_hw_sw 	= 1,	/* JEITA HW or SW = 0 or 1 (1:HardWare, 0:SoftWare) */
+		.jt_hw_sw 	= 0,	/* JEITA HW or SW = 0 or 1 (1:HardWare, 0:SoftWare) */
 		.jt_temp_h 	= 50,	/* degree C */
 		.jt_temp_l 	= 12,	/* degree C */
 		.jt_vfchg_h 	= 0x03,	/* VFCHG High  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
 		.jt_vfchg_l 	= 0,	/* VFCHG Low  	= 0 - 4 (4.05v, 4.10v, 4.15v, 4.20v, 4.35v) */
-		.jt_ichg_h 	= 0x0D,	/* ICHG High   	= 0 - 0x1D (100mA - 3000mA) */
+		.jt_ichg_h 	= 0x13,	/* ICHG High   	= 0 - 0x1D (100mA - 3000mA) */
 		.jt_ichg_l 	= 0x09,	/* ICHG Low   	= 0 - 0x1D (100mA - 3000mA) */	//},
 	},
 
