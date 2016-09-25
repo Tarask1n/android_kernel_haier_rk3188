@@ -40,6 +40,9 @@ extern const struct linux_logo logo_linux_clut224;
 #ifdef CONFIG_LOGO_PIPO_CLUT224
 extern const struct linux_logo logo_pipo_clut224;
 #endif
+#ifdef CONFIG_LOGO_HAIER_1043_CLUT224
+extern const struct linux_logo logo_haier_1043_clut224;
+#endif
 #ifdef CONFIG_LOGO_LINUX_NYAN_CLUT224
 extern const struct linux_logo logo_linux_nyan_clut224;
 #endif
