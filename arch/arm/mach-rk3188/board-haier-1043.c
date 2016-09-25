@@ -384,7 +384,7 @@ static struct sensor_platform_data akm8963_info = // Even with stock kernel
         .type = SENSOR_TYPE_COMPASS,
         .irq_enable = 1,
         .poll_delay_ms = 30,
-        .layout = 0,
+        .layout = 1,
         .m_layout =
         {
             {
@@ -1221,14 +1221,6 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 	},
 #endif
 
-	{
-		.type          = "ak8963",
-		.addr          = 0x0d,
-		.flags         = 0,
-		.irq           = RK30_PIN3_PD7,	
-		.platform_data = &akm8963_info,
-	},
-
 #if defined (CONFIG_GS_MMA8452)
 	{
 		.type	        = "gs_mma8452",
@@ -1238,6 +1230,15 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 		.platform_data = &mma8452_info,
 	},
 #endif
+
+	{
+		.type          = "ak8963",
+		.addr          = 0x0d,
+		.flags         = 0,
+		.irq           = RK30_PIN3_PD7,
+		.platform_data = &akm8963_info,
+	},
+
 
 #if defined(CONFIG_GYRO_EWTSA)
 	{
@@ -1549,11 +1550,11 @@ static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {	// Not ev
 #define dvfs_gpu_table dvfs_gpu_table_volt_level1
 
 /******************************** ddr dvfs frequency volt table **********************************/
-static struct cpufreq_frequency_table dvfs_ddr_table_volt_level0[] = { // Not even with stock kernel --> no problem
+static struct cpufreq_frequency_table dvfs_ddr_table_volt_level0[] = { // Even with stock kernel
 	{.frequency = 200 * 1000 + DDR_FREQ_SUSPEND,	.index = 950 * 1000},
 	//{.frequency = 300 * 1000 + DDR_FREQ_VIDEO,	.index = 1000 * 1000},
 	//{.frequency = 460 * 1000 + DDR_FREQ_DUALVIEW,	.index = 1150 * 1000},
-	{.frequency = 528 * 1000 + DDR_FREQ_NORMAL,     .index = 1250 * 1000},
+	{.frequency = 528 * 1000 + DDR_FREQ_NORMAL,     .index = 1200 * 1000},
 	{.frequency = CPUFREQ_TABLE_END},
 };
 
