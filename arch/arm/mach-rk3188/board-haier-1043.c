@@ -1507,23 +1507,20 @@ static void __init rk30_reserve(void)
  * @cpu_volt	: arm voltage depend on frequency
  */
 
-// ds1006h 10'
-static struct cpufreq_frequency_table dvfs_arm_table_volt_level2[] = {
-        {.frequency = 70 * 1000,       .index = 750 * 1000},
-        {.frequency = 170 * 1000,       .index = 800 * 1000},
-        {.frequency = 312 * 1000,       .index = 900 * 1000},
-        {.frequency = 504 * 1000,       .index = 925 * 1000},
-        {.frequency = 816 * 1000,       .index = 1000 * 1000},
-        {.frequency = 1008 * 1000,      .index = 1075 * 1000},
-        {.frequency = 1200 * 1000,      .index = 1200 * 1000},
-        {.frequency = 1416 * 1000,      .index = 1250 * 1000},
-        {.frequency = 1608 * 1000,      .index = 1350 * 1000},
-        {.frequency = 1708 * 1000,      .index = 1440 * 1000},
-        {.frequency = CPUFREQ_TABLE_END},
+// stock
+static struct cpufreq_frequency_table dvfs_arm_table_volt_level0[] = {
+	{.frequency = 312 * 1000,       .index = 900 * 1000},
+	{.frequency = 504 * 1000,       .index = 925 * 1000},
+	{.frequency = 816 * 1000,       .index = 1000 * 1000},
+	{.frequency = 1008 * 1000,      .index = 1075 * 1000},
+	{.frequency = 1200 * 1000,      .index = 1200 * 1000},
+	{.frequency = 1416 * 1000,      .index = 1250 * 1000},
+	{.frequency = 1608 * 1000,      .index = 1350 * 1000},
+	{.frequency = CPUFREQ_TABLE_END},
 };
 
-// default
-static struct cpufreq_frequency_table dvfs_arm_table_volt_level1[] = { // Not even with stock kernel --> no problem
+// custom
+static struct cpufreq_frequency_table dvfs_arm_table_volt_level1[] = {
 	{.frequency = 312 * 1000,       .index = 875 * 1000},
 	{.frequency = 504 * 1000,       .index = 925 * 1000},
 	{.frequency = 816 * 1000,       .index = 975 * 1000},
@@ -1536,15 +1533,26 @@ static struct cpufreq_frequency_table dvfs_arm_table_volt_level1[] = { // Not ev
 #define dvfs_arm_table dvfs_arm_table_volt_level1
 
 /******************************** gpu dvfs frequency volt table **********************************/
-//ds1006h 10'
-static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {	// Not even with stock kernel --> no problem
-       {.frequency = 133 * 1000,       .index = 975 * 1000},
+// stock
+static struct cpufreq_frequency_table dvfs_gpu_table_volt_level0[] = {
+	{.frequency = 133 * 1000,       .index = 975 * 1000},
+	{.frequency = 200 * 1000,       .index = 975 * 1000},
+	{.frequency = 266 * 1000,       .index = 1000 * 1000},
+	{.frequency = 300 * 1000,       .index = 1050 * 1000},
+	{.frequency = 400 * 1000,       .index = 1100 * 1000},
+	{.frequency = 600 * 1000,       .index = 1200 * 1000},
+	{.frequency = CPUFREQ_TABLE_END},
+};
+
+// custom
+static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {
+	{.frequency = 133 * 1000,       .index = 975 * 1000},
 	{.frequency = 200 * 1000,       .index = 1000 * 1000},
 	{.frequency = 266 * 1000,       .index = 1025 * 1000},
 	{.frequency = 300 * 1000,       .index = 1050 * 1000},
 	{.frequency = 400 * 1000,       .index = 1100 * 1000},
 	{.frequency = 600 * 1000,       .index = 1250 * 1000},
-        {.frequency = CPUFREQ_TABLE_END},
+	{.frequency = CPUFREQ_TABLE_END},
 };
 
 #define dvfs_gpu_table dvfs_gpu_table_volt_level1
