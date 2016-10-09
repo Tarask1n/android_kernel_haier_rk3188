@@ -99,6 +99,10 @@
 #define DDR_TYPE DDR3_1600J
 #endif
 
+#ifdef CONFIG_DDR_TYPE_DDR3_1600K
+#define DDR_TYPE DDR3_1600K
+#endif
+
 #ifdef CONFIG_DDR_TYPE_DDR3_1866J
 #define DDR_TYPE DDR3_1866J
 #endif
