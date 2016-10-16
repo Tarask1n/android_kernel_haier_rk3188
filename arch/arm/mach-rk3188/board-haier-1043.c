@@ -1555,7 +1555,7 @@ static struct cpufreq_frequency_table dvfs_gpu_table_volt_level1[] = {
 	{.frequency = CPUFREQ_TABLE_END},
 };
 
-#define dvfs_gpu_table dvfs_gpu_table_volt_level1
+#define dvfs_gpu_table dvfs_gpu_table_volt_level0
 
 /******************************** ddr dvfs frequency volt table **********************************/
 static struct cpufreq_frequency_table dvfs_ddr_table_volt_level0[] = { // Even with stock kernel
