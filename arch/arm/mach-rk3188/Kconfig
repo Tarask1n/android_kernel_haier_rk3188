@@ -43,6 +43,9 @@ config PIPO_U8
 config HAIER_1043
         bool "Haier 1043"
 
+config ASSISTANT_AP106
+        bool "Assistant AP106"
+
 config MACH_RK3188_U30GT2
 	bool "Cube U30GT2"
 
@@ -69,7 +72,7 @@ config MACH_RK3188_FAC
 endchoice
 
 choice
-	prompt "Custom RK3188 frequencies by str0ntium-9o.
+	prompt "Custom RK3188 frequencies by str0ntium-9o"
 	depends on PIPO_M9PRO
         help 
                 Provides opportunity to choose maximum frequency for CPU

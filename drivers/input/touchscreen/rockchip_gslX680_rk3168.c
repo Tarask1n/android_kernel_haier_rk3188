@@ -33,6 +33,7 @@
 //#define GSL_TIMER
 #define REPORT_DATA_ANDROID_4_0
 
+//#define CONFIG_MACH_RK_FAC
 //#define HAVE_TOUCH_KEY
 
 #define GSLX680_I2C_NAME 	"gslX680"
@@ -57,8 +58,8 @@
 #define WRITE_I2C_SPEED 350*1000
 #define I2C_SPEED  200*1000
 
-//����ʱ�Ƿ���Ҫ�ر�TP��Դ
-//�쳣ʱ�Ƿ���Ҫ�رյ�Դ
+//ÐÝÃßÊ±ÊÇ·ñÐèÒª¹Ø±ÕTPµçÔ´
+//Òì³£Ê±ÊÇ·ñÐèÒª¹Ø±ÕµçÔ´
 #define CLOSE_TP_POWER   1
 
 #if CLOSE_TP_POWER
@@ -1022,6 +1023,13 @@ static int __devinit gsl_ts_probe(struct i2c_client *client,
 	ts->client = client;
 	ts->device_id = id->driver_data;
 
+
+#ifdef CONFIG_MACH_RK_FAC
+	printk(KERN_INFO "==== DEBUG gslx680 ==== CONFIG_MACH_RK_FAC\n");
+#else
+	printk(KERN_INFO "==== DEBUG gslx680 ==== NOT CONFIG_MACH_RK_FAC\n");
+#endif
+
 #ifdef CONFIG_MACH_RK_FAC
 	ts->reset_gpio = pdata->reset_pin;   //lizhengwei
 	ts->irq= gpio_to_irq(pdata->irq_pin);        //lizhengwei  
@@ -1071,7 +1079,7 @@ static int __devinit gsl_ts_probe(struct i2c_client *client,
 	printk( "gsl_ts_probe () : add gsl_timer\n");
 
 	init_timer(&ts->gsl_timer);
-	ts->gsl_timer.expires = jiffies + 3 * HZ;	//��ʱ3  ����
+	ts->gsl_timer.expires = jiffies + 3 * HZ;	//¶¨Ê±3  ÃëÖÓ
 	ts->gsl_timer.function = &gsl_timer_handle;
 	ts->gsl_timer.data = (unsigned long)ts;
 	add_timer(&ts->gsl_timer);
