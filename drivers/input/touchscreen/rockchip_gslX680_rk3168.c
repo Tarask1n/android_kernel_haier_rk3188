@@ -57,8 +57,8 @@
 #define WRITE_I2C_SPEED 350*1000
 #define I2C_SPEED  200*1000
 
-//休眠时是否需要关闭TP电源
-//异常时是否需要关闭电源
+//Whether to turn off the TP power when hibernation
+//Whether to turn off the power when abnormal
 #define CLOSE_TP_POWER   1
 
 #if CLOSE_TP_POWER
@@ -327,13 +327,13 @@ static void gsl_load_fw(struct i2c_client *client)
 #ifdef GSL1680E_COMPATIBLE
 	msleep(50);
 	gsl_ts_read(client, 0xfc, read_buf, 4);
-	//printk("read 0xfc = %x %x %x %x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
+	printk("read 0xfc = %x %x %x %x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
 
 	if(read_buf[2] != 0x82 && read_buf[2] != 0x88)
 	{
 		msleep(100);
 		gsl_ts_read(client, 0xfc, read_buf, 4);
-		//printk("read 0xfc = %x %x %x %x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);		
+		printk("read 0xfc = %x %x %x %x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
 	}
 	
 	if(read_buf[2] == 0x82)
@@ -836,6 +836,9 @@ static int gsl_ts_init_ts(struct i2c_client *client, struct gsl_ts *ts)
 		goto error_alloc_dev;
 	}
 
+    // Test i2c status
+    test_i2c(client);
+
 	ts->input = input_device;
 	input_device->name = GSLX680_I2C_NAME;
 	input_device->id.bustype = BUS_I2C;
@@ -1071,7 +1074,7 @@ static int __devinit gsl_ts_probe(struct i2c_client *client,
 	printk( "gsl_ts_probe () : add gsl_timer\n");
 
 	init_timer(&ts->gsl_timer);
-	ts->gsl_timer.expires = jiffies + 3 * HZ;	//定时3  秒钟
+	ts->gsl_timer.expires = jiffies + 3 * HZ;	//3 seconds
 	ts->gsl_timer.function = &gsl_timer_handle;
 	ts->gsl_timer.data = (unsigned long)ts;
 	add_timer(&ts->gsl_timer);

@@ -148,6 +148,62 @@ static struct ct36x_platform_data ct36x_info = {
 
 #endif
 
+#if defined (CONFIG_TOUCHSCREEN_GSLX680_RK3168)
+static int gslx680_init_platform_hw()
+{
+	int ret;
+	printk(KERN_INFO "==== DEBUG gslx680 tp init hardware ====");
+//	if(tp_rst!=-1)
+//	{
+//		ret = port_output_init(tp_rst, 1, "tp_rst");
+//		if(ret<0)
+//			printk("%s: port output init faild\n", __func__);
+//	}
+//
+//	port_output_on(tp_rst);
+//	mdelay(10);
+//	port_output_off(tp_rst);
+//	mdelay(10);
+//	port_output_on(tp_rst);
+//	msleep(300);
+	return 0;
+}
+
+#ifdef CONFIG_MACH_RK_FAC
+static struct tp_platform_data gslx680_data = {
+		.init_platform_hw	= gslx680_init_platform_hw,
+};
+//struct tp_platform_data {
+//	int model;
+//	int x_max;
+//	int y_max;
+//	int reset_pin;
+//	int irq_pin ;
+//	int firmVer;
+//	int (*get_pendown_state)(void);
+//	int (*init_platform_hw)(void);
+//	int (*platform_sleep)(void);
+//	int (*platform_wakeup)(void);
+//	void (*exit_platform_hw)(void);
+//};
+#else
+static struct ts_hw_data gslx680_data = {
+		.reset_gpio = RK30_PIN0_PB6, 
+// Bad probed RK30_PIN0_PB6,
+		.touch_en_gpio = RK30_PIN1_PB7,
+//		.max_x = 1024;
+//		.max_y = 600;
+		.init_platform_hw	= gslx680_init_platform_hw,
+};
+#endif
+
+struct i2c_board_info __initdata gslx680_info = {
+		.type = "gslX680",
+		.flags = 0,
+		.platform_data = &gslx680_data,
+};
+#endif
+
 #if defined(CONFIG_GYRO_L3G20D)
 
 #include <linux/l3g4200d.h>
@@ -1917,12 +1973,24 @@ static struct i2c_board_info __initdata i2c2_info[] = {
 		.platform_data = &anx6345_platform_data,
 	},
 
+#if defined(CONFIG_TOUCHSCREEN_CT36X)
 	{
 		.type	       = CT36X_NAME,
 		.addr          = 0x01,
 		.flags         = 0,
 		.platform_data = &ct36x_info,
 	},
+
+#endif
+
+#if defined(CONFIG_TOUCHSCREEN_GSLX680_RK3168)
+	{
+		.type			= "gslX680",
+		.flags			= 0,
+		.addr			= 0x40,
+		.platform_data	= &gslx680_data,
+	},
+#endif
 
 	{
 		.type		= GTP_I2C_NAME ,
