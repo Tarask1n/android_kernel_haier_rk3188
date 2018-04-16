@@ -197,14 +197,14 @@ exit_alloc_gpio_wake_failed:
 static int gslX680_shutdown_low(void)
 {
 	gpio_direction_output(ts_global_reset_pin, GPIO_LOW);
-	gpio_set_value(ts_global_reset_pin,GPIO_LOW);
+	gpio_set_value(ts_global_reset_pin, GPIO_LOW);
 	return 0;
 }
 
 static int gslX680_shutdown_high(void)
 {
 	gpio_direction_output(ts_global_reset_pin, GPIO_HIGH);
-	gpio_set_value(ts_global_reset_pin,GPIO_HIGH);
+	gpio_set_value(ts_global_reset_pin, GPIO_HIGH);
 	return 0;
 }
 
@@ -1046,12 +1046,18 @@ static int __devinit gsl_ts_probe(struct i2c_client *client,
 		goto error_mutex_destroy;
 	}	
 	
+	rc = gpio_request(ts_global_reset_pin, "tp_shutdown");
+	if (rc < 0) {
+		printk(KERN_ERR "gsl_probe: request shutdown failed\n");
+		goto error_req_shutdown_fail;
+	}
+
 	init_chip(ts->client);
 	check_mem_data(ts->client);
 	
-	rc=  request_irq(client->irq, gsl_ts_irq, IRQF_TRIGGER_RISING, client->name, ts);
+	rc = request_irq(client->irq, gsl_ts_irq, IRQF_TRIGGER_RISING, client->name, ts);
 	if (rc < 0) {
-		printk( "gsl_probe: request irq failed\n");
+		printk(KERN_ERR "gsl_probe: request irq failed\n");
 		goto error_req_irq_fail;
 	}
 
@@ -1098,6 +1104,7 @@ static int __devinit gsl_ts_probe(struct i2c_client *client,
 error_req_irq_fail:
     free_irq(ts->irq, ts);	
 
+error_req_shutdown_fail:
 error_mutex_destroy:
 	input_free_device(ts->input);
 	kfree(ts);
