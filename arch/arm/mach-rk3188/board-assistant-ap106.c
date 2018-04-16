@@ -1992,6 +1992,22 @@ static struct i2c_board_info __initdata i2c2_info[] = {
 	},
 #endif
 
+#if defined(CONFIG_SENSORS_STK8312)
+	{
+		.type			= "stk831x",
+		.flags			= 0,
+		.addr			= 0x3d,
+	},
+#endif
+
+#if defined(CONFIG_SENSORS_STK8313)
+	{
+		.type			= "stk831x",
+		.flags			= 0,
+		.addr			= 0x22,
+	},
+#endif
+
 	{
 		.type		= GTP_I2C_NAME ,
         	.addr		= GTP_I2C_ADDR ,

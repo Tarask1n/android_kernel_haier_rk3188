@@ -563,6 +563,20 @@ config TCC_BT_DEV
 	help
 	  If you say Y here, you can contorl the power of the BT H/W Module
 
+config SENSORS_STK8313
+	tristate "STK8313 accelerometer sensor driver"
+	depends on I2C
+	help
+	  Say yes here to support Sensortek's STK8313 accelerometer sensor
+
+if(!SENSORS_STK8313)
+config SENSORS_STK8312
+	tristate "STK8312 accelerometer sensor driver"
+	depends on I2C
+	help
+	  Say yes here to support Sensortek's STK8312 accelerometer sensor
+endif
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"

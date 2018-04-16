@@ -64,3 +64,5 @@ obj-y += rk2928_callpad_misc/
 obj-$(CONFIG_MODEM_SOUND) += modem_sound.o
 obj-$(CONFIG_MTK_WIRELESS_SOLUTION)	+= mediatek/
 obj-$(CONFIG_TCC_BT_DEV)       += tcc_bt_dev.o
+obj-$(CONFIG_SENSORS_STK8313)   += stk831x.o
+obj-$(CONFIG_SENSORS_STK8312)   += stk831x.o
