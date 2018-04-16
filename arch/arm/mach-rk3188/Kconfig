@@ -45,6 +45,7 @@ config HAIER_1043
 
 config ASSISTANT_AP106
         bool "Assistant AP106"
+#        select MACH_RK_FAC
 
 config MACH_RK3188_U30GT2
 	bool "Cube U30GT2"

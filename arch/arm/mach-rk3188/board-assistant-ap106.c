@@ -171,26 +171,23 @@ static int gslx680_init_platform_hw()
 
 #ifdef CONFIG_MACH_RK_FAC
 static struct tp_platform_data gslx680_data = {
+//		.model				= 0,
+		.x_max				= 1024,
+		.y_max				= 600,
+		.reset_pin			= RK30_PIN0_PB6,
+		.irq_pin			= RK30_PIN1_PB7,
+//		.firmVer			= 0,
+//		.get_pendown_state	= gslx680_get_pendown_state,
 		.init_platform_hw	= gslx680_init_platform_hw,
+//		.platform_sleep		= gslx680_platform_sleep,
+//		.platform_wakeup	= gslx680_platform_wakeup,
+//		.exit_platform_hw	= gslx680_exit_platform_hw,
 };
-//struct tp_platform_data {
-//	int model;
-//	int x_max;
-//	int y_max;
-//	int reset_pin;
-//	int irq_pin ;
-//	int firmVer;
-//	int (*get_pendown_state)(void);
-//	int (*init_platform_hw)(void);
-//	int (*platform_sleep)(void);
-//	int (*platform_wakeup)(void);
-//	void (*exit_platform_hw)(void);
-//};
 #else
 static struct ts_hw_data gslx680_data = {
-		.reset_gpio = RK30_PIN0_PB6, 
+		.reset_gpio			= RK30_PIN0_PB6, 
 // Bad probed RK30_PIN0_PB6,
-		.touch_en_gpio = RK30_PIN1_PB7,
+		.touch_en_gpio		= RK30_PIN1_PB7,
 //		.max_x = 1024;
 //		.max_y = 600;
 		.init_platform_hw	= gslx680_init_platform_hw,
