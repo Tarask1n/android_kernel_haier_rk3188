@@ -148,7 +148,7 @@ static struct ct36x_platform_data ct36x_info = {
 
 #endif
 
-#if defined (CONFIG_TOUCHSCREEN_GSLX680_RK3168)
+#if defined(CONFIG_TOUCHSCREEN_GSLX680_RK3168) || defined(CONFIG_TOUCHSCREEN_GSL3680)
 static int gslx680_init_platform_hw()
 {
 	int ret;
@@ -1980,7 +1980,7 @@ static struct i2c_board_info __initdata i2c2_info[] = {
 
 #endif
 
-#if defined(CONFIG_TOUCHSCREEN_GSLX680_RK3168)
+#if defined(CONFIG_TOUCHSCREEN_GSLX680_RK3168) || defined(CONFIG_TOUCHSCREEN_GSL3680)
 	{
 		.type			= "gslX680",
 		.flags			= 0,

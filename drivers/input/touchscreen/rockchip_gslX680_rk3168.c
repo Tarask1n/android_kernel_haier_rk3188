@@ -29,7 +29,7 @@
 #include <linux/input/mt.h>
 #include "rockchip_gslX680_rk3168.h"
 
-//#define GSL_DEBUG
+#define GSL_DEBUG
 //#define GSL_TIMER
 #define REPORT_DATA_ANDROID_4_0
 
@@ -208,7 +208,7 @@ static int gslX680_shutdown_high(void)
 	return 0;
 }
 
-static int gslX680_shutdown_realse(void)
+static int gslX680_shutdown_release(void)
 {
 	gpio_direction_input(ts_global_reset_pin);
 	return 0;
@@ -320,20 +320,20 @@ static void gsl_load_fw(struct i2c_client *client)
 	u32 source_line = 0;
 	u32 source_len;
 	u8 read_buf[4] = {0};
-	struct fw_data *ptr_fw;
+	const struct fw_data *ptr_fw;
 	
 	printk("=============gsl_load_fw start==============\n");
 
 #ifdef GSL1680E_COMPATIBLE
 	msleep(50);
 	gsl_ts_read(client, 0xfc, read_buf, 4);
-	printk("read 0xfc = %x %x %x %x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
+	printk("read 0xfc = %02x %02x %02x %02x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
 
 	if(read_buf[2] != 0x82 && read_buf[2] != 0x88)
 	{
 		msleep(100);
 		gsl_ts_read(client, 0xfc, read_buf, 4);
-		printk("read 0xfc = %x %x %x %x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
+		printk("read 0xfc = %02x %02x %02x %02x\n", read_buf[3], read_buf[2], read_buf[1], read_buf[0]);
 	}
 	
 	if(read_buf[2] == 0x82)
@@ -350,7 +350,7 @@ static void gsl_load_fw(struct i2c_client *client)
 
 //	printk("FW: %x %x %x %x\n", ptr_fw[0].offset, ptr_fw[0].val, ptr_fw[1].offset, ptr_fw[1].val);
 //	printk("FW: %x %x %x %x\n", ptr_fw[2].offset, ptr_fw[2].val, ptr_fw[3].offset, ptr_fw[3].val);
-	printk("FW: %*ph\n", ptr_fw);
+	printk("FW: %*phC\n", 16, (void*) ptr_fw);
 
 	for (source_line = 0; source_line < source_len; source_line++) 
 	{
@@ -815,7 +815,7 @@ static int gsl_ts_init_ts(struct i2c_client *client, struct gsl_ts *ts)
 #ifdef CONFIG_MACH_RK_FAC
 	struct tp_platform_data *pdata = client->dev.platform_data;   
 #endif
-	int i, rc = 0;
+	int rc = 0;
 	
 	printk("[GSLX680] Enter %s\n", __func__);
 
@@ -948,7 +948,7 @@ static int gsl_ts_suspend(struct device *dev)
 static int gsl_ts_resume(struct device *dev)
 {
 	struct gsl_ts *ts = dev_get_drvdata(dev);
-	int i,rc = 0;
+	int i = 0;
   printk("I'am in gsl_ts_resume() start\n");
 	gslX680_shutdown_high();
 	msleep(20);
