@@ -348,6 +348,10 @@ static void gsl_load_fw(struct i2c_client *client)
 		source_len = ARRAY_SIZE(GSLX680_FW);
 	}
 
+//	printk("FW: %x %x %x %x\n", ptr_fw[0].offset, ptr_fw[0].val, ptr_fw[1].offset, ptr_fw[1].val);
+//	printk("FW: %x %x %x %x\n", ptr_fw[2].offset, ptr_fw[2].val, ptr_fw[3].offset, ptr_fw[3].val);
+	printk("FW: %*ph\n", ptr_fw);
+
 	for (source_line = 0; source_line < source_len; source_line++) 
 	{
 		/* init page trans, set the page val */
@@ -1075,7 +1079,6 @@ static int __devinit gsl_ts_probe(struct i2c_client *client,
   }
 	
 	
-
 #ifdef GSL_TIMER
 	printk( "gsl_ts_probe () : add gsl_timer\n");
 

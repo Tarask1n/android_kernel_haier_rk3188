@@ -152,7 +152,7 @@ static struct ct36x_platform_data ct36x_info = {
 static int gslx680_init_platform_hw()
 {
 	int ret;
-	printk(KERN_INFO "==== DEBUG gslx680 tp init hardware ====");
+	printk(KERN_INFO "==== DEBUG gslx680 tp init hardware ====\n");
 //	if(tp_rst!=-1)
 //	{
 //		ret = port_output_init(tp_rst, 1, "tp_rst");
@@ -185,9 +185,9 @@ static struct tp_platform_data gslx680_data = {
 };
 #else
 static struct ts_hw_data gslx680_data = {
-		.reset_gpio			= RK30_PIN0_PB6, 
+		.reset_gpio			= RK30_PIN1_PB7, 
 // Bad probed RK30_PIN0_PB6,
-		.touch_en_gpio		= RK30_PIN1_PB7,
+		.touch_en_gpio		= RK30_PIN0_PB6,
 //		.max_x = 1024;
 //		.max_y = 600;
 		.init_platform_hw	= gslx680_init_platform_hw,

@@ -39,9 +39,9 @@
 #include <linux/syscalls.h>
 #endif 	//	#ifdef STK_PERMISSION_THREAD
 
-#ifdef CONFIG_SENSORS_STK8313
+#if defined(CONFIG_SENSORS_STK8313)
 	#include "stk8313.h"
-#elif defined CONFIG_SENSORS_STK8312
+#elif defined(CONFIG_SENSORS_STK8312)
 	#include "stk8312.h"
 #else
 	#error "What's your stk accelerometer?"
