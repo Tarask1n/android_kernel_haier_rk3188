@@ -185,9 +185,10 @@ static struct tp_platform_data gslx680_data = {
 };
 #else
 static struct ts_hw_data gslx680_data = {
-		.reset_gpio			= RK30_PIN1_PB7, 
-// Bad probed RK30_PIN0_PB6,
-		.touch_en_gpio		= RK30_PIN0_PB6,
+		.reset_gpio			= RK30_PIN0_PB6,  // ???
+// Bad probed RK30_PIN0_PC0, RK30_PIN3_PD5, RK30_PIN3_PD3 may be some power control
+		.touch_en_gpio		= RK30_PIN1_PB7,
+// RK30_PIN0_PA6 touches 0 messages
 //		.max_x = 1024;
 //		.max_y = 600;
 		.init_platform_hw	= gslx680_init_platform_hw,
@@ -1761,94 +1762,94 @@ int __sramdata g_pmic_type =  0;
 
 #define PMU_POWER_SLEEP 	RK30_PIN0_PA1
 #define PMU_VSEL 		RK30_PIN3_PD3
-#define ACT8846_HOST_IRQ        RK30_PIN0_PB3
+#define ACT8846_HOST_IRQ		RK30_PIN0_PB3
 
 static struct pmu_info  act8846_dcdc_info[] = {
 	{
-		.name          = "act_dcdc1",   //ddr
-		.min_uv          = 1200000,
-		.max_uv         = 1200000,
-		.suspend_vol  =   1200000,
+		.name			= "act_dcdc1",   //ddr
+		.min_uv			= 1200000,
+		.max_uv			= 1200000,
+		.suspend_vol	= 1200000,
 	},
 	{
-		.name          = "vdd_core",    //logic
-		.min_uv          = 1000000,
-		.max_uv         = 1000000,
+		.name			= "vdd_core",    //logic
+		.min_uv			= 1000000,
+		.max_uv			= 1000000,
 		#ifdef CONFIG_ACT8846_SUPPORT_RESET
-		.suspend_vol  =  1200000,
+		.suspend_vol	= 1200000,
 		#else
-		.suspend_vol  =  900000,
+		.suspend_vol	= 900000,
 		#endif
 	},
 	{
-		.name          = "vdd_cpu",   //arm
-		.min_uv          = 1000000,
-		.max_uv         = 1000000,
+		.name			= "vdd_cpu",   //arm
+		.min_uv			= 1000000,
+		.max_uv			= 1000000,
 		#ifdef CONFIG_ACT8846_SUPPORT_RESET
-		.suspend_vol  =  1200000,
+		.suspend_vol	= 1200000,
 		#else
-		.suspend_vol  =  900000,
+		.suspend_vol	= 900000,
 		#endif
 	},
 	{
-		.name          = "act_dcdc4",   //vccio
+		.name			= "act_dcdc4",   //vccio
 #if defined(CONFIG_PIPO_M7PRO)
-		.min_uv         = 3100000,
-		.max_uv         = 3100000,
-		.suspend_vol    = 3300000,
+		.min_uv			= 3100000,
+		.max_uv			= 3100000,
+		.suspend_vol	= 3300000,
 #else
-		.min_uv         = 3300000,
-		.max_uv         = 3300000,
-		.suspend_vol    = 3300000,
+		.min_uv			= 3300000,
+		.max_uv			= 3300000,
+		.suspend_vol	= 3300000,
 #endif
 	},
 	
 };
 static  struct pmu_info  act8846_ldo_info[] = {
 	{
-		.name          = "act_ldo1",   //vdd10
-		.min_uv          = 1000000,
-		.max_uv         = 1000000,
+		.name			= "act_ldo1",   //vdd10
+		.min_uv			= 1000000,
+		.max_uv			= 1000000,
 	},
 	{
-		.name          = "act_ldo2",    //vdd12
-		.min_uv          = 1200000,
-		.max_uv         = 1200000,
+		.name			= "act_ldo2",    //vdd12
+		.min_uv			= 1200000,
+		.max_uv			= 1200000,
 	},
 	{
-		.name          = "act_ldo3",   //vcc18_cif
-		.min_uv          = 1800000,
-		.max_uv         = 1800000,
+		.name			= "act_ldo3",   //vcc18_cif
+		.min_uv			= 1800000,
+		.max_uv			= 1800000,
 	},
 	{
-		.name          = "act_ldo4",   //vcca33
-		.min_uv          = 3300000,
-		.max_uv         = 3300000,
+		.name			= "act_ldo4",   //vcca33
+		.min_uv			= 3300000,
+		.max_uv			= 3300000,
 	},
 	{
-		.name          = "act_ldo5",   //vcctp
-		.min_uv          = 3300000,
-		.max_uv         = 3300000,
+		.name			= "act_ldo5",   //vcctp
+		.min_uv			= 3300000,
+		.max_uv			= 3300000,
 	},
 	{
-		.name          = "act_ldo6",   //vcc_jetta
+		.name			= "act_ldo6",   //vcc_jetta
 #if defined(CONFIG_PIPO_M7PRO)
-		.min_uv         = 1800000,
-		.max_uv         = 1800000,
+		.min_uv			= 1800000,
+		.max_uv			= 1800000,
 #else
-		.min_uv         = 2800000,
-		.max_uv         = 2800000,
+		.min_uv			= 2800000,
+		.max_uv			= 2800000,
 #endif
 	},
 	{
-		.name          = "act_ldo7",   //vcc18
-		.min_uv          = 1800000,
-		.max_uv         = 1800000,
+		.name			= "act_ldo7",   //vcc18
+		.min_uv			= 1800000,
+		.max_uv			= 1800000,
 	},
 	{
-		.name          = "act_ldo8",   //vcc28_cif
-		.min_uv          = 2800000,
-		.max_uv         = 2800000,
+		.name			= "act_ldo8",   //vcc28_cif
+		.min_uv			= 2800000,
+		.max_uv			= 2800000,
 	},
  };
 
@@ -1857,11 +1858,11 @@ static  struct pmu_info  act8846_ldo_info[] = {
 
 static struct i2c_board_info __initdata i2c1_info[] = {
 	{
-		.type    		= "act8846",
-		.addr           = 0x5a, 
+		.type			= "act8846",
+		.addr			= 0x5a, 
 		.flags			= 0,
-		.irq            = ACT8846_HOST_IRQ,
-		.platform_data=&act8846_data,
+		.irq			= ACT8846_HOST_IRQ,
+		.platform_data	= &act8846_data,
 	},
 	{
 		.type                   = "rtc_hym8563",
@@ -1970,7 +1971,7 @@ static struct i2c_board_info __initdata i2c2_info[] = {
 		.platform_data = &anx6345_platform_data,
 	},
 
-#if defined(CONFIG_TOUCHSCREEN_CT36X)
+#if defined(CONFIG_TOUCHSCREEN_CT36X) || defined(CONFIG_CT36X_TS)
 	{
 		.type	       = CT36X_NAME,
 		.addr          = 0x01,

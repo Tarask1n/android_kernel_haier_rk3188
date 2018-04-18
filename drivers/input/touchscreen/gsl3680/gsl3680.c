@@ -245,15 +245,15 @@ static struct regulator *regulator_init(const char *name, int minvol, int maxvol
 	struct regulator *power;
 	int ret;
 
-	power = regulator_get(NULL,name);
-    	if (IS_ERR(power)) {
+	power = regulator_get(NULL, name);
+	if (IS_ERR(power)) {
 		printk("Nova err,regulator_get fail\n!!!");
 		return NULL;
 	}
  
 	if (regulator_set_voltage(power, minvol, maxvol)) {
-        	printk("Nova err,cannot set voltage\n!!!");
-        	regulator_put(power);
+		printk("Nova err,cannot set voltage\n!!!");
+		regulator_put(power);
         
 		return NULL;
 	}
@@ -894,43 +894,42 @@ static void gslX680_ts_worker(struct work_struct *work)
 	#endif
 	//printk("raw(x,y):(%d,%d)\n",x,y);
 	#if CFG_TP_USE_CONFIG
-    if (cfg_dts.XYSwap == 1)
-    {
-        int tmp;
-        tmp=x;
-        x=y;
-        y=tmp;
-    }
-    
-    if(cfg_dts.xRevert == 1)
-    {   
-        x = cfg_dts.xMax - x;
-    }
-    
-    if(cfg_dts.yRevert == 1)
-    {
-        y = cfg_dts.yMax - y;
-    }
-    
-    
-    if(cfg_dts.rotate == 90) //anticlockwise 90 angle
-    {
-        int tmp;
-        tmp = x;
-        x = y;
-        y = cfg_dts.xMax-tmp;
-    }else if(cfg_dts.rotate == 180) //anticlockwise 180 angle
-    {
-        x = cfg_dts.xMax - x;
-        y = cfg_dts.yMax - y;
-    } else if(cfg_dts.rotate == 270) //anticlockwise 270 angle
-    {
-        int tmp;
-        tmp = x;
-        x = cfg_dts.yMax-y;
-        y = tmp;
-    }
-
+		if (cfg_dts.XYSwap == 1)
+		{
+			int tmp;
+			tmp=x;
+			x=y;
+			y=tmp;
+		}
+		
+		if(cfg_dts.xRevert == 1)
+		{   
+			x = cfg_dts.xMax - x;
+		}
+		
+		if(cfg_dts.yRevert == 1)
+		{
+			y = cfg_dts.yMax - y;
+		}
+		
+		
+		if(cfg_dts.rotate == 90) //anticlockwise 90 angle
+		{
+			int tmp;
+			tmp = x;
+			x = y;
+			y = cfg_dts.xMax-tmp;
+		}else if(cfg_dts.rotate == 180) //anticlockwise 180 angle
+		{
+			x = cfg_dts.xMax - x;
+			y = cfg_dts.yMax - y;
+		} else if(cfg_dts.rotate == 270) //anticlockwise 270 angle
+		{
+			int tmp;
+			tmp = x;
+			x = cfg_dts.yMax-y;
+			y = tmp;
+		}
 	#endif
 	//printk("new(x,y):(%d,%d)\n",x,y);
 
@@ -938,13 +937,13 @@ static void gslX680_ts_worker(struct work_struct *work)
 		{
 		#ifdef FILTER_POINT
 			filter_point(x, y ,id);
-			report_data(ts, x_new, y_new, 10, id);		
+			report_data(ts, x_new, y_new, 10, id);
 		#else 
 			#if defined(RECORD_POINT)
 				record_point(x, y , id);
-				report_data(ts, x_new, y_new, 10, id);		
+				report_data(ts, x_new, y_new, 10, id);
 			#else
-				report_data(ts, x, y, 10, id);		
+				report_data(ts, x, y, 10, id);
 			#endif
 		#endif
 			id_state_flag[id] = 1;

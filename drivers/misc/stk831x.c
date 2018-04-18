@@ -1364,9 +1364,9 @@ static int STK831x_Init(struct stk831x_data *stk, struct i2c_client *client)
 #endif 
 
 	buffer[0] = STK831X_STH;
-#ifdef CONFIG_SENSORS_STK8312	
+#if defined(CONFIG_SENSORS_STK8312)
 	buffer[1] = 0x42;
-#elif defined CONFIG_SENSORS_STK8313
+#elif defined(CONFIG_SENSORS_STK8313)
 	buffer[1] = 0x82;
 #endif	
 	result = STK_i2c_Tx(buffer, 2);
@@ -1376,10 +1376,10 @@ static int STK831x_Init(struct stk831x_data *stk, struct i2c_client *client)
 		return result;
 	}	
 	
-//	atomic_set(&stk->enabled, 0);	
+//	atomic_set(&stk->enabled, 0);
 #if STK_ACC_POLLING_MODE
 	atomic_set(&stk->run_thread, 0);
-#endif	//#if STK_ACC_POLLING_MODE				
+#endif	//#if STK_ACC_POLLING_MODE
 	event_since_en = 0;
 	return 0;
 }
