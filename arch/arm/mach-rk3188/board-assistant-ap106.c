@@ -942,7 +942,7 @@ static struct platform_device device_ion = {
 	#define DVDD33_EN_PIN 		RK30_PIN0_PB0
 	#define DVDD33_EN_VALUE 	GPIO_LOW
 	
-	#define DVDD18_EN_PIN 		RK30_PIN3_PD4//RK30_PIN3_PD4//RK30_PIN1_PB6//RK30_PIN4_PC7
+	#define DVDD18_EN_PIN 		RK30_PIN3_PD4  //RK30_PIN3_PD4//RK30_PIN1_PB6//RK30_PIN4_PC7
 	#define DVDD18_EN_VALUE 	GPIO_HIGH
 
 	#define EDP_RST_PIN 		RK30_PIN0_PB4
@@ -991,12 +991,12 @@ static struct platform_device device_ion = {
 		
 	}
 	static struct anx6345_platform_data anx6345_platform_data = {
-		.power_ctl 	= rk_edp_power_ctl,
-		.dvdd33_en_pin 	= DVDD33_EN_PIN,
-		.dvdd33_en_val 	= DVDD33_EN_VALUE,
-		.dvdd18_en_pin 	= DVDD18_EN_PIN,
-		.dvdd18_en_val 	= DVDD18_EN_VALUE,
-		.edp_rst_pin   	= EDP_RST_PIN,
+		.power_ctl		= rk_edp_power_ctl,
+		.dvdd33_en_pin	= DVDD33_EN_PIN,
+		.dvdd33_en_val	= DVDD33_EN_VALUE,
+		.dvdd18_en_pin	= DVDD18_EN_PIN,
+		.dvdd18_en_val	= DVDD18_EN_VALUE,
+		.edp_rst_pin	= EDP_RST_PIN,
 	};
 #endif
 
@@ -1388,7 +1388,10 @@ static struct cw_bat_platform_data cw_bat_platdata = {
 
 #ifdef CONFIG_RK30_PWM_REGULATOR
 static int pwm_voltage_map[] = {
-	800000,825000,850000, 875000,900000, 925000 ,950000, 975000,1000000, 1025000, 1050000, 1075000, 1100000, 1125000, 1150000, 1175000, 1200000, 1225000, 1250000, 1275000, 1300000, 1325000, 1350000,1375000
+	800000, 825000, 850000, 875000, 900000, 925000, 950000, 975000,
+	1000000, 1025000, 1050000, 1075000, 1100000, 1125000, 1150000, 
+	1175000, 1200000, 1225000, 1250000, 1275000, 1300000, 1325000, 
+	1350000, 1375000
 };
 
 static struct regulator_consumer_supply pwm_dcdc1_consumers[] = {
@@ -1913,7 +1916,7 @@ void __sramfunc board_pmu_resume(void)
 	#endif
 }
 
- int __sramdata gpio3d6_iomux,gpio3d6_do,gpio3d6_dir,gpio3d6_en;
+ int __sramdata gpio3d6_iomux, gpio3d6_do, gpio3d6_dir, gpio3d6_en;
 
 #define grf_readl(offset)	readl_relaxed(RK30_GRF_BASE + offset)
 #define grf_writel(v, offset)	do { writel_relaxed(v, RK30_GRF_BASE + offset); dsb(); } while (0)

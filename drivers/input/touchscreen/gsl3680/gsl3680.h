@@ -1,12 +1,12 @@
 #ifndef _GSLX680_H_
 #define _GSLX680_H_
 
-#define SCREEN_MAX_X 		1280
-#define SCREEN_MAX_Y 		800
-#define TP_ROTATE_DEFAULT 0
-#define TP_XREVERT 1
-#define TP_YREVERT 1
-#define TP_XYSWAP 1
+#define SCREEN_MAX_X		1280
+#define SCREEN_MAX_Y		800
+#define TP_ROTATE_DEFAULT	0
+#define TP_XREVERT			0  //1
+#define TP_YREVERT			0  //1
+#define TP_XYSWAP			1
 
 
 struct fw_data

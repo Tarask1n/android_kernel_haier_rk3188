@@ -660,7 +660,7 @@ static void report_key(struct gsl_ts *ts, u16 x, u16 y)
 
 static void report_data(struct gsl_ts *ts, u16 x, u16 y, u8 pressure, u8 id)
 {
-	swap(x, y);
+//	swap(x, y);
 
 	print_info("#####id=%d,x=%d,y=%d######\n", id, x, y);
 
