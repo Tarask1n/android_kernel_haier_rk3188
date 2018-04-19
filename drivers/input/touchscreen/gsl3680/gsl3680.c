@@ -55,12 +55,12 @@
 
 #define CFG_TP_USE_CONFIG 0
 #if CFG_TP_USE_CONFIG
-	#define TP_REGULATOR
+#define TP_REGULATOR
 #endif
 
 //default value
-#define GSLX680_I2C_NAME 	"gslX680"
-#define GSLX680_I2C_ADDR 	0x40
+#define GSLX680_I2C_NAME	"gslX680"
+#define GSLX680_I2C_ADDR	0x40
 
 #define TP_RESET_PIN		INVALID_GPIO
 #define TP_I2C_ADAPTER		(1)
@@ -100,7 +100,7 @@ static struct tp_cfg_dts cfg_dts;
 
 //#define HAVE_TOUCH_KEY
 #define SLEEP_CLEAR_POINT
-#define FILTER_POINT	/*·À¶¶*/
+#define FILTER_POINT		// Anti-shake
 #define RECORD_POINT
 #ifdef FILTER_POINT
 #define FILTER_MAX			9
@@ -116,8 +116,8 @@ static struct tp_cfg_dts cfg_dts;
 
 #define PRESS_MAX			255
 #define MAX_FINGERS			10
-#define MAX_CONTACTS		10		//Èç¹ûÖ»¿ª5¸öÊÖÖ¸£¬IDºÅÒ²¿ÉÄÜ´óÓÚ5
-#define DMA_TRANS_LEN		0x10	//Ò»´ÎÏÂÔØ¶àÉÙ¼Ä´æÆ÷£¬0x20ÊÇÒ»Ò³32X4×Ö½Ú
+#define MAX_CONTACTS		10		//If you open only 5 fingers, the ID number may also be greater than 5
+#define DMA_TRANS_LEN		0x10	//How many registers are downloaded at a time, 0x20 is a page of 32x4 bytes
 
 struct mutex mutex;
 
@@ -567,23 +567,29 @@ static void check_mem_data(struct i2c_client *client)
 }
 
 #ifdef FILTER_POINT
-static void filter_point(u16 x, u16 y , u8 id)
+static void filter_point(u16 x, u16 y, u8 id)
 {
-	u16 x_err =0;
-	u16 y_err =0;
+	u16 x_err = 0;
+	u16 y_err = 0;
 	u16 filter_step_x = 0, filter_step_y = 0;
-	
+
+	// Anti shock
+	if(SCREEN_MAX_X < x || SCREEN_MAX_Y < y)
+	{
+		return;
+	}
+
 	id_sign[id] = id_sign[id] + 1;
 	if(id_sign[id] == 1)
 	{
 		x_old[id] = x;
 		y_old[id] = y;
 	}
-	
-	x_err = x > x_old[id] ? (x -x_old[id]) : (x_old[id] - x);
-	y_err = y > y_old[id] ? (y -y_old[id]) : (y_old[id] - y);
 
-	if( (x_err > FILTER_MAX && y_err > FILTER_MAX/3) || (x_err > FILTER_MAX/3 && y_err > FILTER_MAX) )
+	x_err = x > x_old[id] ? (x - x_old[id]) : (x_old[id] - x);
+	y_err = y > y_old[id] ? (y - y_old[id]) : (y_old[id] - y);
+
+	if((x_err > FILTER_MAX && y_err > FILTER_MAX/3) || (x_err > FILTER_MAX/3 && y_err > FILTER_MAX))
 	{
 		filter_step_x = x_err;
 		filter_step_y = y_err;
@@ -619,57 +625,70 @@ static void filter_point(u16 x, u16 y , u8 id)
 	y_old[id] = y_new;
 }
 #else
-static void record_point(u16 x, u16 y , u8 id)
+static void record_point(u16 x, u16 y, u8 id)
 {
-	u16 x_err =0;
-	u16 y_err =0;
+	u16 x_err = 0;
+	u16 y_err = 0;
 
-	id_sign[id]=id_sign[id]+1;
-	
-	if(id_sign[id]==1){
-		x_old[id]=x;
-		y_old[id]=y;
+	id_sign[id] = id_sign[id] + 1;
+
+	if(id_sign[id] == 1)
+	{
+		x_old[id] = x;
+		y_old[id] = y;
 	}
 
-	x = (x_old[id] + x)/2;
-	y = (y_old[id] + y)/2;
+	x = (x_old[id] + x) / 2;
+	y = (y_old[id] + y) / 2;
 		
-	if(x>x_old[id]){
-		x_err=x -x_old[id];
+	if(x > x_old[id])
+	{
+		x_err = x - x_old[id];
 	}
-	else{
-		x_err=x_old[id]-x;
-	}
-
-	if(y>y_old[id]){
-		y_err=y -y_old[id];
-	}
-	else{
-		y_err=y_old[id]-y;
+	else
+	{
+		x_err = x_old[id] - x;
 	}
 
-	if( (x_err > 3 && y_err > 1) || (x_err > 1 && y_err > 3) ){
+	if(y > y_old[id])
+	{
+		y_err = y - y_old[id];
+	}
+	else
+	{
+		y_err = y_old[id] - y;
+	}
+
+	if((x_err > 3 && y_err > 1) || (x_err > 1 && y_err > 3))
+	{
 		x_new = x;     x_old[id] = x;
 		y_new = y;     y_old[id] = y;
 	}
-	else{
-		if(x_err > 3){
+	else
+	{
+		if(x_err > 3)
+		{
 			x_new = x;     x_old[id] = x;
 		}
 		else
+		{
 			x_new = x_old[id];
-		if(y_err> 3){
+		}
+		if(y_err > 3)
+		{
 			y_new = y;     y_old[id] = y;
 		}
 		else
+		{
 			y_new = y_old[id];
+		}
 	}
 
-	if(id_sign[id]==1){
-		x_new= x_old[id];
-		y_new= y_old[id];
+	if(id_sign[id] == 1)
+	{
+		x_new = x_old[id];
+		y_new = y_old[id];
 	}
-	
 }
 #endif
 
@@ -680,11 +699,12 @@ static void report_key(struct gsl_ts *ts, u16 x, u16 y)
 
 	for(i = 0; i < MAX_KEY_NUM; i++) 
 	{
-		if((gsl_key_data[i].x_min < x) && (x < gsl_key_data[i].x_max)&&(gsl_key_data[i].y_min < y) && (y < gsl_key_data[i].y_max))
+		if((gsl_key_data[i].x_min < x) && (x < gsl_key_data[i].x_max) && 
+			(gsl_key_data[i].y_min < y) && (y < gsl_key_data[i].y_max))
 		{
-			key = gsl_key_data[i].key;	
+			key = gsl_key_data[i].key;
 			input_report_key(ts->input, key, 1);
-			input_sync(ts->input); 		
+			input_sync(ts->input); 
 			key_state_flag = 1;
 			break;
 		}
@@ -701,37 +721,43 @@ static int tp_of_data_get(void)
     int ret = -1;
 
     of_node = of_find_compatible_node(NULL, NULL, "gslX680");
-    if (of_node==NULL){
-        printk(KERN_ERR"%s,%d,find the gsxX680 dts err!\n",__func__, __LINE__);
+    if (of_node==NULL)
+	{
+        printk(KERN_ERR"%s,%d,find the gsxX680 dts err!\n", __func__, __LINE__);
         return -1;
     }
 
 	// load tp regulator
-	if (of_find_property(of_node, "tp_vcc", NULL)) {
+	if (of_find_property(of_node, "tp_vcc", NULL)) 
+	{
 		ret = of_property_read_string(of_node, "tp_vcc", &cfg_dts.regulator);
-		if (ret < 0) {
+		if (ret < 0) 
+		{
 			printk("can not read tp_vcc power source\n");
 			cfg_dts.regulator = ctp_power_name;
 		}
 
-		if (of_property_read_u32_array(of_node, "vol_range", scope, 2)) {
+		if (of_property_read_u32_array(of_node, "vol_range", scope, 2))
+		{
 			printk(" failed to get voltage range\n");
 			scope[0] = CTP_POWER_MIN_VOL;
 			scope[1] = CTP_POWER_MAX_VOL;
 		}
-		cfg_dts.vol_min=scope[0];
-		cfg_dts.vol_max=scope[1];
+		cfg_dts.vol_min = scope[0];
+		cfg_dts.vol_max = scope[1];
 	}
 	
 	// load irq number
-    cfg_dts.sirq = irq_of_parse_and_map(of_node,0);
-    if (cfg_dts.sirq < 0) {
+    cfg_dts.sirq = irq_of_parse_and_map(of_node, 0);
+    if (cfg_dts.sirq < 0)
+	{
         printk("No IRQ resource for tp\n");
 		return -ENODEV;
 	}
 
 	// load gpio info
-	if (!of_find_property(of_node, "reset_gpios", NULL)) {
+	if (!of_find_property(of_node, "reset_gpios", NULL))
+	{
 		printk("<isp>err: no config gpios\n");
 		goto fail;
 	}
@@ -741,49 +767,56 @@ static int tp_of_data_get(void)
     
 	// load tp i2c addr
 	ret = of_property_read_u32(of_node, "reg", &cfg_dts.i2cAddr);
-	if (ret) {
+	if (ret)
+	{
 		printk(" failed to get i2c_addr\n");
 		goto fail;
 	}
 	
 	// load other options
 	ret = of_property_read_u32(of_node, "x_pixel", &cfg_dts.xMax);
-	if (ret) {
+	if (ret)
+	{
 		printk("failed to get x_pixel\r\n,set default:1280");
 		cfg_dts.xMax = SCREEN_MAX_X;
 	}
 
 	ret = of_property_read_u32(of_node, "y_pixel", &cfg_dts.yMax);
-	if (ret) {
+	if (ret)
+	{
 		printk("failed to get y_pixel\r\n,set default:800");
 		cfg_dts.yMax = SCREEN_MAX_Y;
 	}
 
 	ret = of_property_read_u32(of_node, "x_revert_en", &cfg_dts.xRevert);
-	if (ret) {
-		printk("failed to get x_revert_en\r\n,set default:1280");
+	if (ret)
+	{
+		printk("failed to get x_revert_en\r\n,set default:0");
 		cfg_dts.xRevert = 0;
 	}
 
 	ret = of_property_read_u32(of_node, "y_revert_en", &cfg_dts.yRevert);
-	if (ret) {
-		printk("failed to get y_revert_en\r\n,set default:800");
+	if (ret)
+	{
+		printk("failed to get y_revert_en\r\n,set default:0");
 		cfg_dts.yRevert = 0;
 	}
 
 	ret = of_property_read_u32(of_node, "xy_swap_en", &cfg_dts.XYSwap);
-	if (ret) {
+	if (ret)
+	{
 		printk("failed to get xy_swap_en, set default:0\r\n");
 		cfg_dts.XYSwap = 0;
 	}
     
 	ret = of_property_read_u32(of_node, "rotate_degree", &cfg_dts.rotate);
-	if (ret) {
+	if (ret)
+	{
 		printk("failed to get rotate, set default:0\r\n");
 		cfg_dts.rotate = 0;
 	}
 
-	
+
 	printk("gpio num:%d, reset level:%d, i2c_addr:%02x, irq_number:%d,x_pixel:%d, y_pixel:%d, max_point:%d, rotate:%d, i2cNum:%d\n",
 		gpio_reset,
 		0,
@@ -795,11 +828,10 @@ static int tp_of_data_get(void)
 		cfg_dts.rotate,
 		cfg_dts.i2cNum);
     
-        return 0;
+	return 0;
 
 fail:
 	return -1;
-    
 }
 #endif
 
@@ -814,7 +846,7 @@ static void report_data(struct gsl_ts *ts, u16 x, u16 y, u8 pressure, u8 id)
 #endif
 
 #ifdef REPORT_DATA_PROTOCOL_B
-	input_mt_slot(ts->input, id);	
+	input_mt_slot(ts->input, id);
 	input_mt_report_slot_state(ts->input, MT_TOOL_FINGER, true);
 	input_report_abs(ts->input, ABS_MT_POSITION_X, x);
 	input_report_abs(ts->input, ABS_MT_POSITION_Y, y);
@@ -1021,7 +1053,7 @@ static void gsl_monitor_worker(struct work_struct *data)
 	char read_buf[4]  = {0};
 	char download_flag = 0;
 	
-	print_info("----------------gsl_monitor_worker-----------------\n");	
+	print_info("----------------gsl_monitor_worker-----------------\n");
 
 	if(i2c_lock_flag != 0)
 		goto queue_monitor_work;
@@ -1042,7 +1074,7 @@ static void gsl_monitor_worker(struct work_struct *data)
 		goto DOWNLOAD_FW;
 	}
 	
-	gsl_ts_read(gsl_client, 0xb4, read_buf, 4);	
+	gsl_ts_read(gsl_client, 0xb4, read_buf, 4);
 	int_2nd[3] = int_1st[3];
 	int_2nd[2] = int_1st[2];
 	int_2nd[1] = int_1st[1];
@@ -1061,9 +1093,13 @@ static void gsl_monitor_worker(struct work_struct *data)
 
 	gsl_ts_read(gsl_client, 0xbc, read_buf, 4);
 	if(read_buf[3] != 0 || read_buf[2] != 0 || read_buf[1] != 0 || read_buf[0] != 0)
+	{
 		bc_counter ++;
+	}
 	else
+	{
 		bc_counter = 0;
+	}
 
 	if(bc_counter > 1) 
 	{
@@ -1073,7 +1109,7 @@ static void gsl_monitor_worker(struct work_struct *data)
 	}
 DOWNLOAD_FW:
 	if(1 == download_flag)
-	{		
+	{
 		init_chip(gsl_client);
 	}
 	
@@ -1097,12 +1133,15 @@ static void gslX680_init_worker (struct work_struct *work)
 static irqreturn_t gsl_ts_irq(int irq, void *dev_id)
 {	
 	struct gsl_ts *ts = dev_id;
-	print_info("========gslX680 Interrupt=========\n");				 
+	print_info("========gslX680 Interrupt=========\n");
 
-	if (!work_pending(&ts->work)) {
+	if (!work_pending(&ts->work))
+	{
 		queue_work(ts->wq, &ts->work);
-	}else{
-		//printk("[GSLX680] work is pending,lost the interrupt.\n");
+	}
+	else
+	{
+		printk("[GSLX680] work is pending,lost the interrupt.\n");
 	}
 	return IRQ_HANDLED;
 }
@@ -1113,81 +1152,89 @@ static irqreturn_t gsl_ts_irq(int irq, void *dev_id)
 
 /**************************************************************************/
 static ssize_t tp_rotate_show(struct device *dev,
-        struct device_attribute *attr, char *buf)
+		struct device_attribute *attr, char *buf)
 {
-    return sprintf(buf, "%d\n",cfg_dts.rotate);
+	return sprintf(buf, "%d\n", cfg_dts.rotate);
 }
 /**************************************************************************/
 static ssize_t tp_rotate_store(struct device *dev,
-        struct device_attribute *attr,
-        const char *buf, size_t count)
+		struct device_attribute *attr,
+		const char *buf, size_t count)
 {
-    unsigned long data=0;
+	unsigned long data = 0;
 	int error;
-    error = strict_strtol(buf, 10, &data);
-    if (error)
-        return error;
-	cfg_dts.rotate=data;
-    return count;
+	error = strict_strtol(buf, 10, &data);
+	if (error)
+	{
+		return error;
+	}
+	cfg_dts.rotate = data;
+	return count;
 }
 /**************************************************************************/
 static ssize_t tp_xrevert_show(struct device *dev,
-        struct device_attribute *attr, char *buf)
+		struct device_attribute *attr, char *buf)
 {
-    return sprintf(buf, "%d\n",cfg_dts.xRevert);
+	return sprintf(buf, "%d\n", cfg_dts.xRevert);
 }
 /**************************************************************************/
 static ssize_t tp_xrevert_store(struct device *dev,
-        struct device_attribute *attr,
-        const char *buf, size_t count)
+		struct device_attribute *attr,
+		const char *buf, size_t count)
 {
-    unsigned long data=0;
+	unsigned long data = 0;
 	int error;
-    error = strict_strtol(buf, 10, &data);
-    if (error)
-        return error;
-	cfg_dts.xRevert=data;
-    return count;
+	error = strict_strtol(buf, 10, &data);
+	if (error)
+	{
+		return error;
+	}
+	cfg_dts.xRevert = data;
+	return count;
 }
 
 /**************************************************************************/
 static ssize_t tp_yrevert_show(struct device *dev,
-        struct device_attribute *attr, char *buf)
+		struct device_attribute *attr, char *buf)
 {
-    return sprintf(buf, "%d\n",cfg_dts.yRevert);
+	return sprintf(buf, "%d\n", cfg_dts.yRevert);
 }
 /**************************************************************************/
 static ssize_t tp_yrevert_store(struct device *dev,
-        struct device_attribute *attr,
-        const char *buf, size_t count)
+		struct device_attribute *attr,
+		const char *buf, size_t count)
 {
-    unsigned long data=0;
+	unsigned long data = 0;
 	int error;
-    error = strict_strtol(buf, 10, &data);
-    if (error)
-        return error;
-	cfg_dts.yRevert=data;
-    return count;
+	error = strict_strtol(buf, 10, &data);
+	if (error)
+	{
+		return error;
+	}
+	cfg_dts.yRevert = data;
+	return count;
 }
 
 /**************************************************************************/
 static ssize_t tp_xyswap_show(struct device *dev,
-        struct device_attribute *attr, char *buf)
+		struct device_attribute *attr, char *buf)
 {
-    return sprintf(buf, "%d\n",cfg_dts.XYSwap);
+	return sprintf(buf, "%d\n", cfg_dts.XYSwap);
 }
 /**************************************************************************/
 static ssize_t tp_xyswap_store(struct device *dev,
         struct device_attribute *attr,
         const char *buf, size_t count)
 {
-    unsigned long data=0;
+	unsigned long data = 0;
 	int error;
-    error = strict_strtol(buf, 10, &data);
-    if (error)
-        return error;
-	cfg_dts.XYSwap=data;
-    return count;
+	error = strict_strtol(buf, 10, &data);
+	if (error)
+	{
+		return error;
+	}
+	cfg_dts.XYSwap = data;
+	return count;
 }
 
 static DEVICE_ATTR(tp_rotate, S_IWUSR|S_IWGRP|S_IRUSR|S_IRGRP, tp_rotate_show, tp_rotate_store);
@@ -1204,7 +1251,7 @@ static struct attribute *tp_attributes[] = {
 };
 
 static const struct attribute_group tp_attr_group = {
-    .attrs  = tp_attributes,
+	.attrs  = tp_attributes,
 };
 #endif
 
@@ -1217,19 +1264,22 @@ static int gslX680_ts_init(struct i2c_client *client, struct gsl_ts *ts)
 
 	ts->dd = &devices[ts->device_id];
 
-	if (ts->device_id == 0) {
+	if (ts->device_id == 0)
+	{
 		ts->dd->data_size = MAX_FINGERS * ts->dd->touch_bytes + ts->dd->touch_meta_data;
 		ts->dd->touch_index = 0;
 	}
 
 	ts->touch_data = kzalloc(ts->dd->data_size, GFP_KERNEL);
-	if (!ts->touch_data) {
+	if (!ts->touch_data)
+	{
 		pr_err("%s: Unable to allocate memory\n", __func__);
 		return -ENOMEM;
 	}
 
 	input_device = input_allocate_device();
-	if (!input_device) {
+	if (!input_device)
+	{
 		rc = -ENOMEM;
 		goto error_alloc_dev;
 	}
@@ -1266,7 +1316,9 @@ static int gslX680_ts_init(struct i2c_client *client, struct gsl_ts *ts)
 	set_bit(EV_KEY, input_device->evbit);
 	input_device->evbit[0] = BIT_MASK(EV_KEY);
 	for (i = 0; i < MAX_KEY_NUM; i++)
+	{
 		set_bit(key_array[i], input_device->keybit);
+	}
 #endif
 
 #if CFG_TP_USE_CONFIG
@@ -1277,32 +1329,37 @@ static int gslX680_ts_init(struct i2c_client *client, struct gsl_ts *ts)
 #endif
 
 	ts->wq = create_singlethread_workqueue("kworkqueue_ts");
-	if (!ts->wq) {
+	if (!ts->wq)
+	{
 		dev_err(&client->dev, "Could not create workqueue\n");
 		goto error_wq_create;
 	}
-	flush_workqueue(ts->wq);	
+	flush_workqueue(ts->wq);
 
 	INIT_WORK(&ts->work, gslX680_ts_worker);
-	
-#ifdef RESUME_INIT_CHIP_WORK	
+
+#ifdef RESUME_INIT_CHIP_WORK
 	ts->init_wq = create_singlethread_workqueue("ts_init_wq");
-	if (!ts->init_wq) {
+	if (!ts->init_wq)
+	{
 		dev_err(&client->dev, "Could not create ts_init_wq workqueue\n");
 		goto error_wq_create;
 	}
-	flush_workqueue(ts->init_wq);	
+	flush_workqueue(ts->init_wq);
 	INIT_WORK(&ts->init_work, gslX680_init_worker);
 #endif
 	rc = input_register_device(input_device);
 	if (rc)
+	{
 		goto error_unreg_device;
-	
+	}
+
 	this_ts = ts;
 
 #if CFG_TP_USE_CONFIG
-	if (sysfs_create_group(&input_device->dev.kobj, &tp_attr_group) < 0){
-	    printk("create tp sysfs group error!");		
+	if (sysfs_create_group(&input_device->dev.kobj, &tp_attr_group) < 0)
+	{
+		printk("create tp sysfs group error!");
 	}
 #endif
 	return 0;
@@ -1319,7 +1376,7 @@ error_alloc_dev:
 static int gsl_ts_suspend(struct device *dev)
 {
 	flush_workqueue(this_ts->init_wq);
-    flush_work(&this_ts->init_work);
+	flush_work(&this_ts->init_work);
 
 	printk("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
 	gslX680_shutdown_low();
@@ -1338,15 +1395,15 @@ static int gsl_ts_suspend(struct device *dev)
 #if CFG_TP_USE_CONFIG
 static int gsl_ts_resume_early(struct device *dev)
 {
-    int ret;
+	int ret;
 
-    //printk("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
-    pr_info("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
-    if (1 == power_is_on)
-    {
-        printk("impossible: power is turned on!\n");
-        return 0;
-    }
+	//printk("[GSLX680] Enter %s ########%d\n", __func__, __LINE__);
+	pr_info("[GSLX680] Enter %s ########%d\n", __func__, __LINE__);
+	if (1 == power_is_on)
+	{
+		printk("impossible: power is turned on!\n");
+		return 0;
+	}
 
 #if defined(TP_REGULATOR)
 	if (tp_regulator)
@@ -1360,8 +1417,8 @@ static int gsl_ts_resume_early(struct device *dev)
 	queue_work(this_ts->init_wq, &this_ts->init_work);
 #endif
 
-    power_is_on = 1;
-    return 0;
+	power_is_on = 1;
+	return 0;
 }
 #endif
 
@@ -1370,11 +1427,11 @@ static int gsl_ts_resume(struct device *dev)
 	//printk("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
 	pr_info("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
 
-    if (1 == power_is_on)
-    {
-        printk(" power is turned on!\n");
-        return 0;
-    }
+	if (1 == power_is_on)
+	{
+		printk(" power is turned on!\n");
+		return 0;
+	}
 
 #if defined(TP_REGULATOR)
 	if (tp_regulator)
@@ -1395,39 +1452,39 @@ static int gsl_ts_resume(struct device *dev)
 #ifdef CONFIG_HAS_EARLYSUSPEND
 static void gsl_ts_early_suspend(struct early_suspend *h)
 {
-	int i=0;
+	int i = 0;
 
-	printk("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
+	printk("[GSLX680] Enter %s ########%d\n", __func__, __LINE__);
 	
 	disable_irq(this_ts->irq);
 	flush_workqueue(this_ts->wq);
-    flush_work(&this_ts->work);
-    
+	flush_work(&this_ts->work);
+
 	#ifdef GSL_MONITOR
-	printk( "gsl_ts_suspend () : cancel gsl_monitor_work\n");
+	printk("gsl_ts_suspend () : cancel gsl_monitor_work\n");
 	cancel_delayed_work_sync(&gsl_monitor_work);
 	#endif
 
 #ifdef SLEEP_CLEAR_POINT
 	#ifdef REPORT_DATA_PROTOCOL_B
-	for(i =1;i<=MAX_CONTACTS;i++)
-	{	
+	for(i = 1; i <= MAX_CONTACTS; i++)
+	{
 		input_mt_slot(this_ts->input, i);
 		input_mt_report_slot_state(this_ts->input, MT_TOOL_FINGER, false);
 	}
 	#endif
-	input_sync(this_ts->input);	
+	input_sync(this_ts->input);
 #endif
 }
 
 static void gsl_ts_late_resume(struct early_suspend *h)
 {
 	enable_irq(this_ts->irq);
-	
-	//printk("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
-	pr_info("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
+
+	//printk("[GSLX680] Enter %s ########%d\n", __func__, __LINE__);
+	pr_info("[GSLX680] Enter %s ########%d\n", __func__, __LINE__);
 	#ifdef GSL_MONITOR
-	printk( "gsl_ts_resume () : queue gsl_monitor_work\n");
+	printk("gsl_ts_resume () : queue gsl_monitor_work\n");
 	queue_delayed_work(gsl_monitor_workqueue, &gsl_monitor_work, 500);
 	#endif
 }
@@ -1452,14 +1509,16 @@ static int gsl_ts_probe(struct i2c_client *client,
 	struct gsl_ts *ts;
 	int rc;
 
-	printk("[GSLX680] Enter %s ########%d\n", __func__,__LINE__);
-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+	printk("[GSLX680] Enter %s ########%d\n", __func__, __LINE__);
+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+	{
 		dev_err(&client->dev, "I2C functionality not supported\n");
 		return -ENODEV;
 	}
  
 	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
-	if (!ts) {
+	if (!ts)
+	{
 		printk("kzalloc failed.\n");
 		return -ENOMEM;
 	}
@@ -1473,10 +1532,11 @@ static int gsl_ts_probe(struct i2c_client *client,
 	ts->device_id = id->driver_data;
 
 	rc = gslX680_ts_init(client, ts);
-	if (rc < 0) {
+	if (rc < 0)
+	{
 		dev_err(&client->dev, "GSLX680 init failed\n");
 		goto error_mutex_destroy;
-	}	
+	}
 
 #if defined(GSL_DEBUG)
 	printk("gslx680 req reset GPIO %d\n", gpio_reset);
@@ -1501,7 +1561,8 @@ static int gsl_ts_probe(struct i2c_client *client,
 	printk("gslx680 req irq GPIO %d\n", client->irq);
 #endif
 	rc = request_irq(client->irq, gsl_ts_irq, IRQF_TRIGGER_RISING | IRQF_DISABLED, client->name, ts);
-	if (rc < 0) {
+	if (rc < 0)
+	{
 		printk( "gsl_probe: request irq failed\n");
 		goto error_req_irq_fail;
 	}
@@ -1517,12 +1578,12 @@ static int gsl_ts_probe(struct i2c_client *client,
 	register_early_suspend(&ts->early_suspend);
 #endif
 #ifdef GSL_MONITOR
-	printk( "gsl_ts_probe () : queue gsl_monitor_workqueue\n");
+	printk("gsl_ts_probe () : queue gsl_monitor_workqueue\n");
 	INIT_DELAYED_WORK(&gsl_monitor_work, gsl_monitor_worker);
 	gsl_monitor_workqueue = create_singlethread_workqueue("gsl_monitor_workqueue");
 	queue_delayed_work(gsl_monitor_workqueue, &gsl_monitor_work, 500);
 #endif
-	
+
 	printk("[GSLX680] End %s\n", __func__);
 
 	return 0;
@@ -1542,7 +1603,7 @@ error_mutex_destroy:
 static int gsl_ts_remove(struct i2c_client *client)
 {
 	struct gsl_ts *ts = i2c_get_clientdata(client);
-	printk("==gsl_ts_remove=\n");
+	printk("==gsl_ts_remove==\n");
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	unregister_early_suspend(&ts->early_suspend);
@@ -1601,15 +1662,15 @@ static unsigned short gsl_addresses[] = {
 
 static struct dev_pm_ops tp_pm_ops = {
 #if CFG_TP_USE_CONFIG
-    .resume_early = gsl_ts_resume_early,
+    .resume_early	= gsl_ts_resume_early,
 #endif
-    .suspend       = gsl_ts_suspend,
-    .resume = gsl_ts_resume,
+    .suspend		= gsl_ts_suspend,
+    .resume			= gsl_ts_resume,
 };
 
 #if CFG_TP_USE_CONFIG
 static struct of_device_id gsl_of_match[] = {
-	{ .compatible = "gslX680" },
+	{.compatible = "gslX680"},
 	{ }
 };
 #endif
@@ -1623,10 +1684,10 @@ static struct i2c_driver gsl_ts_driver = {
 		.of_match_table	= of_match_ptr(gsl_of_match),
 #endif
 	},
-	.probe		= gsl_ts_probe,
-	.remove		= gsl_ts_remove,
-	.shutdown	=	gsl_ts_shutdown,
-	.id_table	= gsl_ts_id,
+	.probe			= gsl_ts_probe,
+	.remove			= gsl_ts_remove,
+	.shutdown		= gsl_ts_shutdown,
+	.id_table		= gsl_ts_id,
 	.address_list	= gsl_addresses,
 };
  
@@ -1637,13 +1698,13 @@ static struct i2c_board_info tp_info = {
 #if CFG_TP_USE_CONFIG
 static int tp_config_init(void)
 {
-    cfg_dts.rotate=TP_ROTATE_DEFAULT;
-    cfg_dts.xMax=TP_MAX_X;
-    cfg_dts.yMax=TP_MAX_Y;
-    cfg_dts.xRevert=TP_XREVERT;
-    cfg_dts.yRevert=TP_YREVERT;
-    cfg_dts.XYSwap=TP_XYSWAP;
-    return 0;
+	cfg_dts.rotate	= TP_ROTATE_DEFAULT;
+	cfg_dts.xMax	= TP_MAX_X;
+	cfg_dts.yMax	= TP_MAX_Y;
+	cfg_dts.xRevert	= TP_XREVERT;
+	cfg_dts.yRevert	= TP_YREVERT;
+	cfg_dts.XYSwap	= TP_XYSWAP;
+	return 0;
 }
 #endif
 
@@ -1651,14 +1712,15 @@ static int __init gsl_ts_init(void)
 {
 	//struct i2c_adapter *adap = NULL;
 	int ret;
-	
+
 	printk("==gsl_ts_init==\n");
-	
+
 #if CFG_TP_USE_CONFIG
 	tp_config_init();
 
 	ret = tp_of_data_get();
-	if(ret<0) {
+	if(ret < 0)
+	{
 		printk("Please complete the TP configuration item!!!\n\n");
 	}
 	tp_info.addr = cfg_dts.i2cAddr;
@@ -1695,7 +1757,7 @@ static int __init gsl_ts_init(void)
 */
 
 	ret = i2c_add_driver(&gsl_ts_driver);
-	printk("i2c_add_driver,ret=%d\n",ret);
+	printk("i2c_add_driver,ret=%d\n", ret);
 	return ret;
 }
 
