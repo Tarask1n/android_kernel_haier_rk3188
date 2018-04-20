@@ -58,10 +58,21 @@
 #include <linux/mt6229.h>
 #endif
 
+#if defined(CONFIG_RK_HDMI)
 #include "../../../drivers/video/rockchip/hdmi/rk_hdmi.h"
+#endif
+#if defined(CONFIG_GPS_RK)
 #include "../../../drivers/misc/gps/rk_gps/rk_gps.h"
-#include "../mach-rk30/board-rk3168-ds1006h-camera.c"
+#endif
+
+#include "board-assistant-ap106-camera.c"
+
 #include "../../../drivers/input/touchscreen/gt9xx/gt9xx.h"
+
+#if defined(CONFIG_MFD_RK610)
+#include <linux/mfd/rk610_core.h>
+#endif
+
 
 static int tp_probe_flag = 0;
 extern int get_probe_state(void)
@@ -363,13 +374,13 @@ static struct sensor_platform_data mma8452_info = {
         .orientation = {-1, 0, 0, 0, 0, -1, 0, 1, 0},
 };
 #endif
+
 #if defined (CONFIG_GS_LIS3DH)
 #define LIS3DH_INT_PIN   RK30_PIN0_PB7
 
 static int lis3dh_init_platform_hw(void)
 {
-
-        return 0;
+	return 0;
 }
 
 static struct sensor_platform_data lis3dh_info = {
@@ -379,7 +390,6 @@ static struct sensor_platform_data lis3dh_info = {
         .init_platform_hw = lis3dh_init_platform_hw,
 	.orientation = {0, 1, 0, 1, 0, 0, 0, 0, -1}, //M6PRO
 };
-
 #endif //(CONFIG_GS_LIS3DH)
 
 #if defined (CONFIG_COMPASS_AK8963)
@@ -470,7 +480,6 @@ static struct sensor_platform_data akm8975_info =
 		},
 	}
 };
-
 #endif
 
 #if defined(CONFIG_MT6229)
@@ -531,7 +540,6 @@ static struct sensor_platform_data l3g4200d_info = {
 	.y_min = 40,
 	.z_min = 20,
 };
-
 #endif
 
 #include "../../../drivers/video/rockchip/transmitter/mipi_dsi.h"
@@ -1004,10 +1012,10 @@ static struct platform_device device_ion = {
  * SDMMC devices,  include the module of SD,MMC,and sdio.noted by xbw at 2012-03-05
 **************************************************************************************************/
 #ifdef CONFIG_SDMMC_RK29
-#include "board-rk3188-ds1006h-sdmmc-config.c"
+#include "board-assistant-ap106-sdmmc-config.c"
 #include "../plat-rk/rk-sdmmc-ops.c"
 #include "../plat-rk/rk-sdmmc-wifi.c"
-#endif //endif ---#ifdef CONFIG_SDMMC_RK29
+#endif
 
 #ifdef CONFIG_SDMMC0_RK29
 static int rk29_sdmmc0_cfg_gpio(void)
@@ -1040,7 +1048,7 @@ static int rk29_sdmmc0_cfg_gpio(void)
         #else
         rk30_mux_api_set(RK29SDK_SD_CARD_DETECT_PIN_NAME, RK29SDK_SD_CARD_DETECT_IOMUX_FMUX);
         #endif
-    #endif	
+    #endif
 
 #if defined(CONFIG_SDMMC0_RK29_WRITE_PROTECT)
 	gpio_request(SDMMC0_WRITE_PROTECT_PIN, "sdmmc-wp");
@@ -1284,7 +1292,6 @@ static struct platform_device rk30_device_adc_battery = {
                 .platform_data = &rk30_adc_battery_platdata,
         },
 };
-
 #endif
 
 //#ifdef CONFIG_CW2015_BATTERY
@@ -1447,16 +1454,16 @@ static struct rfkill_rk_platform_data rfkill_rk_platdata = {
     .type               = RFKILL_TYPE_BLUETOOTH,
 
     .poweron_gpio       = { // BT_REG_ON
-        .io             = RK30_PIN3_PD1,
+        .io             = RK30_PIN3_PC7,
         .enable         = GPIO_HIGH,
         .iomux          = {
             .name       = "bt_poweron",
-            .fgpio      = GPIO3_D1,
+            .fgpio      = GPIO3_C7,
         },
     },
 
     .reset_gpio         = { // BT_RST
-        .io             = INVALID_GPIO,//RK30_PIN3_PD1, 
+        .io             = RK30_PIN3_PD1, 
         .enable         = GPIO_LOW,
         .iomux          = {
             .name       = "bt_reset",
@@ -1484,12 +1491,12 @@ static struct rfkill_rk_platform_data rfkill_rk_platdata = {
     },
 
     .rts_gpio           = { // UART_RTS, enable or disable BT's data coming
-        .io             = RK30_PIN1_PA3, // set io to INVALID_GPIO for disable it
+        .io             = INVALID_GPIO,  // RK30_PIN1_PA3, // set io to INVALID_GPIO for disable it
         .enable         = GPIO_LOW,
         .iomux          = {
             .name       = "bt_rts",
-            .fgpio      = GPIO1_A3,
-            .fmux       = UART0_RTSN,
+//            .fgpio      = GPIO1_A3,
+//            .fmux       = UART0_RTSN,
         },
     },
 };
@@ -1511,6 +1518,7 @@ static struct platform_device device_rfkill_rk = {
 #define GPS_SPI_CS_GPIO GPIO0_D7
 
 //GPS
+#if defined(CONFIG_GPS_RK)
 int rk_gps_io_init(void)
 {
 	int ret;
@@ -1638,13 +1646,56 @@ struct platform_device rk_device_gps = {
 		.platform_data = &rk_gps_info,
 	}
 };
+#endif
+
+#if defined(CONFIG_MT5931_MT6622) || defined(CONFIG_MTK_MT6622)
+static struct mt6622_platform_data mt6622_platdata = {
+	.power_gpio	= { // BT_REG_ON
+		.io			= RK30_PIN3_PC7, // set io to INVALID_GPIO for disable it
+		.enable		= GPIO_HIGH,
+		.iomux		= {
+			.name		= "mt6622_power",
+//            .fgpio		= GPIO3_C7,
+		},
+	},
+
+	.reset_gpio	= { // BT_RST
+		.io			= RK30_PIN3_PD1,
+		.enable		= GPIO_HIGH,
+		.iomux		= {
+			.name		= NULL,
+        },
+    },
+
+	.irq_gpio	= {
+		.io			= RK30_PIN0_PA5,
+		.enable		= GPIO_HIGH,
+		.iomux		= {
+			.name		= NULL,
+		},
+	},
+};
+
+static struct platform_device device_mt6622 = {
+	.name	= "mt6622",
+	.id		= -1,
+	.dev	= {
+		.platform_data = &mt6622_platdata,
+	},
+};
+#endif
 
 static struct platform_device *devices[] __initdata = {
 	&device_ssd2828,
 	&device_ion,
 	&rk29sdk_wifi_device,
 	&device_rfkill_rk,
+#if defined(CONFIG_GPS_RK)
 	&rk_device_gps,
+#endif
+#if defined(CONFIG_MT5931_MT6622) || defined(CONFIG_MTK_MT6622)
+    &device_mt6622,
+#endif
 #if defined(CONFIG_MT6229)
 	&rk29_device_mt6229,
 #endif
@@ -1699,6 +1750,7 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 		.platform_data = &lis3dh_info,
 	},
 #endif
+
 #if defined (CONFIG_COMPASS_AK8963)
 	{
 		.type          = "ak8963",
@@ -1730,6 +1782,7 @@ static struct i2c_board_info __initdata i2c0_info[] = {
 		.platform_data = &akm8975_info,
 	},
 #endif
+
 #if defined (CONFIG_GYRO_L3G4200D)
 	{
 		.type          = "l3g4200d_gryo",
@@ -1836,13 +1889,8 @@ static  struct pmu_info  act8846_ldo_info[] = {
 	},
 	{
 		.name			= "act_ldo6",   //vcc_jetta
-#if defined(CONFIG_PIPO_M7PRO)
-		.min_uv			= 1800000,
-		.max_uv			= 1800000,
-#else
-		.min_uv			= 2800000,
-		.max_uv			= 2800000,
-#endif
+		.min_uv			= 3300000,  // 2800000,
+		.max_uv			= 3300000,  // 2800000,
 	},
 	{
 		.name			= "act_ldo7",   //vcc18
@@ -2016,13 +2064,13 @@ static struct i2c_board_info __initdata i2c2_info[] = {
         	.irq		= RK30_PIN1_PB7,
         	//.platform_data = &ts_pdata,
 	},
-
+#if defined(CONFIG_LS_US5151)
         {    
                 .type           = "us5151",
                 .addr           = 0x10,
                 .flags          = 0, 
         },   
-
+#endif
 };
 
 
@@ -2189,17 +2237,19 @@ static void __init machine_rk30_board_init(void)
 	rk_platform_add_display_devices();
 	//board_usb_detect_init(RK30_PIN0_PA7);
 
-#ifdef CONFIG_WIFI_CONTROL_FUNC
-	rk29sdk_wifi_bt_gpio_control_init();
+#if defined(CONFIG_WIFI_CONTROL_FUNC)                                                                                                                                                                       
+	rk29sdk_wifi_bt_gpio_control_init();                                                                                                                                                                
+#elif defined(CONFIG_WIFI_COMBO_MODULE_CONTROL_FUNC)                                                                                                                                                        
+	rk29sdk_wifi_combo_module_gpio_init();                                                                                                                                                                  
 #endif
 
 #if defined(CONFIG_MT6620)
-	    clk_set_rate(clk_get_sys("rk_serial.1", "uart"), 48*1000000);
+		clk_set_rate(clk_get_sys("rk_serial.1", "uart"), 48*1000000);
 #endif
 
 #if defined(CONFIG_MT5931_MT6622) || defined(CONFIG_MTK_MT6622)
 		clk_set_rate(clk_get_sys("rk_serial.0", "uart"), 24*1000000);
-#endif		
+#endif
 }
 
 #define HD_SCREEN_SIZE 1920UL*1200UL*4*3
